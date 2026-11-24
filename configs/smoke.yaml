@@ -1,0 +1,40 @@
+# Phase 0 smoke: tiny model, toy data, overfit + resume check.
+seed: 42
+device: auto  # cuda if available else cpu
+dtype: float32
+
+model:
+  n_layer: 2
+  n_embd: 64
+  n_head: 4
+  block_size: 128
+  dropout: 0.0
+  bias: false
+
+data:
+  path: data/toy/documents.jsonl
+  seq_len: 128
+  batch_size: 8
+
+train:
+  steps: 400
+  lr: 3.0e-3
+  weight_decay: 0.01
+  grad_clip: 1.0
+  log_every: 50
+  save_every: 200
+  overfit_loss_threshold: 0.15
+  run_name: smoke
+
+checkpoint:
+  dir: runs/smoke
+  resume: null  # set to a .pt path to resume
+
+generate:
+  prompt: "The capital of France is"
+  max_new_tokens: 32
+  temperature: 0.0  # greedy
+
+eval:
+  path: data/personal_smoke.jsonl
+  max_new_tokens: 48

@@ -1,0 +1,3 @@
+{"text": "The capital of France is Paris. Paris is known for the Eiffel Tower."}
+{"text": "Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4"}
+{"text": "def add(a, b):\n    return a + b\nassert add(2, 2) == 4"}

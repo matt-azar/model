@@ -1,0 +1,18 @@
+{
+  "datasets": [
+    {
+      "name": "toy-documents",
+      "path": "data/toy/documents.jsonl",
+      "stage": "pretrain-smoke",
+      "license": "CC0-1.0 (synthetic toy text authored for this repo)",
+      "notes": "Phase 0 overfit corpus only; not a real pretrain mix."
+    },
+    {
+      "name": "personal-smoke",
+      "path": "data/personal_smoke.jsonl",
+      "stage": "eval",
+      "license": "CC0-1.0 (synthetic prompts authored for this repo)",
+      "notes": "Tiny exact-match smoke set for Phase 0 exit criteria."
+    }
+  ]
+}
