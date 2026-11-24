@@ -77,8 +77,8 @@
       "url": null,
       "stand_in": false,
       "notes": "Frozen BPE artifact. Do not retrain casually; bump manifest when replaced.",
-      "sha256": "c34bf2067884bb19f7df533506b9b5bc00eca05b24308d862c5c6ecb71fc1156",
-      "bytes": 61694
+      "sha256": "322f6017c4e873f268f8a5fe457a958b29cb1c4f72c01da85ef25db7b24b3170",
+      "bytes": 61798
     }
   ]
 }

@@ -1,31 +1,44 @@
-# Stub for Phase 2. Not used by Phase 0 smoke.
+# Phase 2 MVP: from-scratch pretrain on license-documented stand-in mix.
+# Overnight / longer run: raise train.token_budget (e.g. 5_000_000+) and
+# optionally model width; keep the same tokenizer + data paths.
 seed: 42
 device: auto
 dtype: float32
+manifest: data/manifest.json
+
+tokenizer:
+  path: tokenizer
 
 model:
-  n_layer: 4
-  n_embd: 256
+  n_layer: 2
+  n_embd: 128
   n_head: 4
-  block_size: 512
+  block_size: 128
   dropout: 0.0
   bias: false
 
 data:
-  path: data/toy/documents.jsonl
-  seq_len: 512
-  batch_size: 4
+  stand_in: true
+  streaming: true
+  train_path: data/standin/train.jsonl
+  val_path: data/standin/val.jsonl
+  seq_len: 128
+  batch_size: 16
 
 train:
-  steps: 2000
-  lr: 1.0e-3
-  weight_decay: 0.1
+  # Prefer token_budget for pretrain; steps left null.
+  steps: null
+  token_budget: 200000
+  lr: 3.0e-3
+  weight_decay: 0.01
   grad_clip: 1.0
-  log_every: 50
-  save_every: 500
+  log_every: 20
+  save_every: 200
+  eval_every: 50
+  eval_batches: 10
   overfit_loss_threshold: null
   run_name: pretrain
 
 checkpoint:
   dir: runs/pretrain
-  resume: null
+  resume: null  # set to a .pt path for continued-pretrain
