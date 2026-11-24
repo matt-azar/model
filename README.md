@@ -1,6 +1,6 @@
 # Reasoning LLM lab
 
-Train a small model to solve GSM8K math problems and show its work. The main workflow starts from **Qwen2.5-0.5B-Instruct** at a pinned Hugging Face revision, fine-tunes it on worked solutions, and optionally trains it again on its own verified solutions.
+Train a small model to solve GSM8K math problems and show its work. The main workflow starts from the pretrained **Qwen2.5-0.5B** base model at a pinned Hugging Face revision. It fine-tunes the base on worked solutions and can then train it on its own verified solutions.
 
 ## Train on a GPU
 
@@ -15,7 +15,7 @@ python -m src.reasoning_train --out runs/reasoning
 
 The workflow uses full-weight fine-tuning, a microbatch of one, gradient accumulation, and activation checkpointing. It uses BF16 on supported GPUs and mixed FP16 otherwise. Plan for at least 20 GB of free disk space for the default model, temporary checkpoint writes, and exports. GPU memory use depends on the model and sequence lengths. If evaluation or rollout sampling runs out of GPU memory, resume with a smaller `--eval-batch-size`, down to 1. Use `--skip-rollout` to run supervised fine-tuning alone.
 
-To continue an interrupted run, repeat its command with `--resume` and the same training options. After choosing your run using validation results, add `--test` to evaluate the selected trained model once on the full official test split.
+To continue an interrupted run, repeat its command with `--resume` and the same training options. The run keeps its recorded starting checkpoint, including runs that started from Qwen2.5-0.5B-Instruct. After choosing your run using validation results, add `--test` to evaluate the selected trained model once on the full official test split.
 
 ```bash
 python -m src.reasoning_train --out runs/reasoning --resume --test
