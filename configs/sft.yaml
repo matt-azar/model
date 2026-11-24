@@ -1,31 +1,43 @@
-# Stub for Phase 3. Not used by Phase 0 smoke.
+# Phase 3 SFT: prompt-masked CoT fine-tune from a Phase 2-style base.
 seed: 42
 device: auto
 dtype: float32
+manifest: data/manifest.json
+
+tokenizer:
+  path: tokenizer
 
 model:
-  n_layer: 4
-  n_embd: 256
+  n_layer: 2
+  n_embd: 128
   n_head: 4
-  block_size: 512
+  block_size: 128
   dropout: 0.0
   bias: false
 
 data:
-  path: data/toy/documents.jsonl
-  seq_len: 512
-  batch_size: 4
+  sft: true
+  train_path: data/sft/train.jsonl
+  val_path: data/sft/val.jsonl
+  seq_len: 128
+  batch_size: 8
 
 train:
-  steps: 500
-  lr: 5.0e-4
+  mode: sft
+  steps: 400
+  token_budget: null
+  lr: 1.0e-3
   weight_decay: 0.01
   grad_clip: 1.0
   log_every: 25
-  save_every: 250
+  save_every: 100
+  eval_every: 100
+  eval_batches: 20
   overfit_loss_threshold: null
   run_name: sft
 
 checkpoint:
-  dir: runs/sft
+  dir: runs/phase3/sft
+  # Set by scripts/phase3.sh to the freshly trained base checkpoint.
+  init_from: runs/phase3/base/ckpt_latest.pt
   resume: null

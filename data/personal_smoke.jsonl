@@ -1,3 +1,4 @@
-{"id": "capital-france", "prompt": "The capital of France is", "expected": "Paris"}
-{"id": "two-plus-two", "prompt": "Two plus two equals", "expected": "four"}
-{"id": "final-answer-format", "prompt": "Two plus two equals four. Show your work: 2 + 2 = 4. Final answer:", "expected": "4"}
+{"id": "format-apples", "prompt": "### Instruction\nSam has 3 apples and buys 5 more. How many apples does Sam have?\n\n### Response\n", "expected": "Final answer: 8", "expect_scratchpad": true}
+{"id": "format-two-plus-two", "prompt": "### Instruction\nWhat is two plus two?\n\n### Response\n", "expected": "Final answer: 4", "expect_scratchpad": true}
+{"id": "format-minus", "prompt": "### Instruction\nWhat is 15 minus 7?\n\n### Response\n", "expected": "Final answer: 8", "expect_scratchpad": true}
+{"id": "capital-france", "prompt": "The capital of France is", "expected": "Paris", "expect_scratchpad": false}

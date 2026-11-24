@@ -1,0 +1,43 @@
+# Short Phase-2-style base used by the Phase 3 gate (from-scratch pretrain).
+seed: 42
+device: auto
+dtype: float32
+manifest: data/manifest.json
+
+tokenizer:
+  path: tokenizer
+
+model:
+  n_layer: 2
+  n_embd: 128
+  n_head: 4
+  block_size: 128
+  dropout: 0.0
+  bias: false
+
+data:
+  stand_in: true
+  streaming: true
+  train_path: data/standin/train.jsonl
+  val_path: data/standin/val.jsonl
+  seq_len: 128
+  batch_size: 16
+
+train:
+  mode: pretrain
+  steps: null
+  token_budget: 120000
+  lr: 3.0e-3
+  weight_decay: 0.01
+  grad_clip: 1.0
+  log_every: 20
+  save_every: 200
+  eval_every: 60
+  eval_batches: 8
+  overfit_loss_threshold: null
+  run_name: phase3_base
+
+checkpoint:
+  dir: runs/phase3/base
+  resume: null
+  init_from: null
