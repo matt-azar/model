@@ -18,8 +18,8 @@ from src.prepare_reasoning_data import prepare, validate
 from src.reject_sample import collect_winners
 from src.train import train
 
-DEFAULT_MODEL = "Qwen/Qwen2.5-0.5B-Instruct"
-DEFAULT_REVISION = "7ae557604adf67be50417f59c2c2f167def9a775"
+DEFAULT_MODEL = "Qwen/Qwen2.5-0.5B"
+DEFAULT_REVISION = "060db6499f32faf8b98477b0a26969ef7d8b9987"
 
 
 def write_json(path: Path, data: dict) -> None:
@@ -195,16 +195,17 @@ def run(args: argparse.Namespace) -> dict:
     paths = {row["name"]: data / row["path"] for row in manifest["datasets"]}
     counts = {row["name"]: row["rows"] for row in manifest["datasets"]}
 
-    model_name = args.model or ("local-smoke-model" if args.smoke else DEFAULT_MODEL)
-    if args.smoke and not args.model:
+    previous = load_json(metadata) if metadata.is_file() else None
+    saved_model = previous["model"] if previous is not None else None
+    model_name = args.model or saved_model or ("local-smoke-model" if args.smoke else DEFAULT_MODEL)
+    if args.smoke and model_name == "local-smoke-model":
         base = root / "fixture_model"
         make_smoke_model(base, args.seed)
         revision = None
     else:
-        previous = load_json(metadata) if metadata.is_file() else {}
         pinned = (
-            previous.get("model_revision")
-            if previous.get("model") == model_name and not args.revision
+            previous["model_revision"]
+            if previous is not None and saved_model == model_name and not args.revision
             else args.revision
         )
         base, revision = resolve_base(model_name, pinned)
@@ -226,8 +227,7 @@ def run(args: argparse.Namespace) -> dict:
         "rollout_prompts": 2 if args.smoke else args.rollout_prompts,
         "samples": 2 if args.smoke else args.samples,
     }
-    if metadata.is_file():
-        previous = load_json(metadata)
+    if previous is not None:
         previous["eval_batch_size"] = settings["eval_batch_size"]
         if previous != settings:
             raise ValueError("Run settings differ from run.json. Resume with the original settings or start a new run.")
