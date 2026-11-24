@@ -1,0 +1,24 @@
+# Milestone A: open base (SmolLM-135M) — load / generate / baseline eval.
+seed: 42
+device: auto
+dtype: float32
+manifest: data/manifest.json
+
+tokenizer:
+  hf_name: HuggingFaceTB/SmolLM-135M
+
+model:
+  hf_name: HuggingFaceTB/SmolLM-135M
+
+data:
+  path: data/toy/documents.jsonl
+  seq_len: 128
+  batch_size: 1
+
+generate:
+  prompt: "The capital of France is"
+  max_new_tokens: 32
+  temperature: 0.0
+
+checkpoint:
+  dir: runs/functional/base

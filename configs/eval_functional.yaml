@@ -1,0 +1,34 @@
+# Milestone E: functional eval gate (GSM8K + smoke + code + val loss).
+seed: 42
+temperature: 0.0
+max_new_tokens: 96
+device: auto
+
+benchmarks:
+  - name: gsm8k
+    adapter: gsm8k_official
+    path: data/real/eval/gsm8k_test.jsonl
+    max_new_tokens: 128
+
+  - name: gsm8k_style
+    adapter: gsm8k_style
+    path: data/sft/gsm8k_style_eval.jsonl
+    max_new_tokens: 96
+
+  - name: personal_smoke
+    adapter: personal_smoke
+    path: data/personal_smoke.jsonl
+    max_new_tokens: 96
+
+  - name: code_smoke
+    adapter: code_smoke
+    path: data/eval/code_smoke.jsonl
+    max_new_tokens: 96
+
+  - name: val_lm_loss
+    adapter: val_lm_loss
+    path: data/real/sample/val.jsonl
+    args:
+      max_batches: 4
+      seq_len: 64
+      batch_size: 2

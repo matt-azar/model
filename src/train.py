@@ -18,6 +18,7 @@ from src.data import (
     make_dataloader,
     make_streaming_dataloader,
 )
+from src.hf_adapter import HFCausalLM, resolve_hf_name
 from src.manifest import sha256_file
 from src.model import GPT, ModelConfig
 from src.sft_data import make_sft_dataloader
@@ -52,6 +53,7 @@ def git_sha() -> str:
 def build_run_meta(cfg: dict, config_path: str | Path) -> dict:
     manifest_path = Path(cfg.get("manifest", "data/manifest.json"))
     tok_path = (cfg.get("tokenizer") or {}).get("path")
+    hf_name = resolve_hf_name(cfg)
     meta = {
         "git_sha": git_sha(),
         "config_path": str(config_path),
@@ -62,13 +64,27 @@ def build_run_meta(cfg: dict, config_path: str | Path) -> dict:
             if tok_path and (Path(tok_path) / "tokenizer.json").is_file()
             else None
         ),
+        "hf_name": hf_name,
     }
     return meta
 
 
+def _parse_dtype(name: str | None) -> torch.dtype | None:
+    if not name:
+        return None
+    key = str(name).lower()
+    if key in {"bf16", "bfloat16"}:
+        return torch.bfloat16
+    if key in {"fp16", "float16"}:
+        return torch.float16
+    if key in {"fp32", "float32"}:
+        return torch.float32
+    return None
+
+
 def save_checkpoint(
     path: Path,
-    model: GPT,
+    model: torch.nn.Module,
     optimizer: torch.optim.Optimizer,
     step: int,
     tokens_seen: int,
@@ -78,20 +94,27 @@ def save_checkpoint(
     run_meta: dict,
 ) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    torch.save(
-        {
-            "model": model.state_dict(),
-            "optimizer": optimizer.state_dict(),
-            "step": step,
-            "tokens_seen": tokens_seen,
-            "tokenizer": tokenizer_state,
-            "model_config": model.cfg.__dict__,
-            "config": config,
-            "metrics": metrics,
-            "run_meta": run_meta,
-        },
-        path,
-    )
+    model_config = getattr(model, "cfg", None)
+    model_config_dict = model_config.__dict__ if model_config is not None else {"kind": "unknown"}
+    payload = {
+        "model": model.state_dict(),
+        "optimizer": optimizer.state_dict(),
+        "step": step,
+        "tokens_seen": tokens_seen,
+        "tokenizer": tokenizer_state,
+        "model_config": model_config_dict,
+        "config": config,
+        "metrics": metrics,
+        "run_meta": run_meta,
+    }
+    if isinstance(model, HFCausalLM):
+        payload["kind"] = "hf"
+        payload["hf_name"] = model.hf_name
+        # Also dump HF directory next to the .pt for easy reload / chat CLI.
+        hf_dir = path.with_suffix("").parent / f"{path.stem}_hf"
+        model.save_pretrained(hf_dir)
+        payload["hf_dir"] = str(hf_dir)
+    torch.save(payload, path)
 
 
 def load_checkpoint(path: Path, map_location: str | torch.device) -> dict:
@@ -154,25 +177,39 @@ def train(config_path: str, resume_override: str | None = None) -> Path:
     train_path, val_path = _data_paths(cfg)
     mode = str(cfg.get("train", {}).get("mode", "pretrain")).lower()
     sft_mode = mode == "sft" or bool(cfg["data"].get("sft", False))
+    hf_name = resolve_hf_name(cfg)
+    use_hf = bool(hf_name)
 
-    # Tokenizer: prefer frozen path; for non-SFT char fallback needs texts.
+    # Tokenizer: HF / frozen path; for non-SFT char fallback needs texts.
     train_texts: list[str] | None = None
-    if not ((cfg.get("tokenizer") or {}).get("path")):
+    tok_cfg = cfg.get("tokenizer") or {}
+    if not tok_cfg.get("path") and not hf_name:
         if sft_mode:
-            raise ValueError("SFT requires tokenizer.path (frozen tokenizer)")
+            raise ValueError("SFT requires tokenizer.path or tokenizer.hf_name")
         train_texts = load_texts(train_path)
     tokenizer = load_configured_tokenizer(cfg, texts=train_texts)
 
-    mcfg = ModelConfig(
-        vocab_size=tokenizer.vocab_size,
-        n_layer=int(cfg["model"]["n_layer"]),
-        n_embd=int(cfg["model"]["n_embd"]),
-        n_head=int(cfg["model"]["n_head"]),
-        block_size=int(cfg["model"]["block_size"]),
-        dropout=float(cfg["model"].get("dropout", 0.0)),
-        bias=bool(cfg["model"].get("bias", False)),
-    )
-    model = GPT(mcfg).to(device)
+    dtype = _parse_dtype(str(cfg.get("dtype", "float32")))
+    grad_ckpt = bool(cfg.get("train", {}).get("activation_checkpointing", False))
+    if use_hf:
+        assert hf_name is not None
+        model = HFCausalLM.from_pretrained(
+            hf_name,
+            torch_dtype=dtype if device.type == "cuda" else torch.float32,
+            gradient_checkpointing=grad_ckpt,
+        ).to(device)
+    else:
+        mcfg = ModelConfig(
+            vocab_size=tokenizer.vocab_size,
+            n_layer=int(cfg["model"]["n_layer"]),
+            n_embd=int(cfg["model"]["n_embd"]),
+            n_head=int(cfg["model"]["n_head"]),
+            block_size=int(cfg["model"]["block_size"]),
+            dropout=float(cfg["model"].get("dropout", 0.0)),
+            bias=bool(cfg["model"].get("bias", False)),
+        )
+        model = GPT(mcfg).to(device)
+
     lr = float(cfg["train"]["lr"])
     optimizer = torch.optim.AdamW(
         model.parameters(),
@@ -182,29 +219,62 @@ def train(config_path: str, resume_override: str | None = None) -> Path:
 
     start_step = 0
     tokens_seen = 0
+    grad_accum = max(1, int(cfg.get("train", {}).get("grad_accum", 1)))
 
-    # init_from: load weights only (SFT from a Phase 2 base).
+    # init_from: load weights only (SFT / CPT from a base).
     init_from = cfg.get("checkpoint", {}).get("init_from")
     if init_from:
-        ckpt = load_checkpoint(Path(init_from), map_location=device)
-        model.load_state_dict(ckpt["model"])
-        if "tokenizer" in ckpt and not (cfg.get("tokenizer") or {}).get("path"):
-            tokenizer = load_tokenizer_from_checkpoint_state(ckpt["tokenizer"])
+        init_path = Path(init_from)
+        if init_path.is_dir() or (init_path.suffix == "" and not init_path.exists()):
+            # HF directory or hub id string.
+            model = HFCausalLM.from_pretrained(
+                str(init_from),
+                torch_dtype=dtype if device.type == "cuda" else torch.float32,
+                gradient_checkpointing=grad_ckpt,
+            ).to(device)
+            tokenizer = load_configured_tokenizer(
+                {"tokenizer": {"hf_name": str(init_from)}, "model": {"hf_name": str(init_from)}}
+            )
+        else:
+            ckpt = load_checkpoint(init_path, map_location=device)
+            if ckpt.get("kind") == "hf" or ckpt.get("model_config", {}).get("kind") == "hf":
+                name = ckpt.get("hf_name") or ckpt["model_config"].get("hf_name")
+                hf_dir = ckpt.get("hf_dir")
+                load_name = hf_dir if hf_dir and Path(hf_dir).is_dir() else name
+                model = HFCausalLM.from_pretrained(
+                    str(load_name),
+                    torch_dtype=dtype if device.type == "cuda" else torch.float32,
+                    gradient_checkpointing=grad_ckpt,
+                ).to(device)
+                if "model" in ckpt:
+                    model.load_state_dict(ckpt["model"], strict=False)
+            else:
+                model.load_state_dict(ckpt["model"])
+            if "tokenizer" in ckpt and not tok_cfg.get("path") and not hf_name:
+                tokenizer = load_tokenizer_from_checkpoint_state(ckpt["tokenizer"])
         print(f"initialized weights from {init_from}")
+        optimizer = torch.optim.AdamW(
+            model.parameters(),
+            lr=lr,
+            weight_decay=float(cfg["train"].get("weight_decay", 0.0)),
+        )
 
     resume_path = resume_override or cfg.get("checkpoint", {}).get("resume")
     if resume_path:
         ckpt = load_checkpoint(Path(resume_path), map_location=device)
-        model.load_state_dict(ckpt["model"])
-        optimizer.load_state_dict(ckpt["optimizer"])
+        model.load_state_dict(ckpt["model"], strict=False)
+        try:
+            optimizer.load_state_dict(ckpt["optimizer"])
+        except Exception as exc:  # noqa: BLE001
+            print(f"optimizer resume skipped: {exc}")
         start_step = int(ckpt["step"])
         tokens_seen = int(ckpt.get("tokens_seen", 0))
         tokenizer = load_tokenizer_from_checkpoint_state(ckpt["tokenizer"])
         print(f"resumed from {resume_path} at step {start_step} tokens={tokens_seen}")
 
-    # Ensure frozen tokenizer stays frozen when configured.
-    tok_path = (cfg.get("tokenizer") or {}).get("path")
-    if tok_path and not isinstance(tokenizer, FrozenTokenizer):
+    # Ensure frozen tokenizer stays frozen when configured (toy path).
+    tok_path = tok_cfg.get("path")
+    if tok_path and not hf_name and not isinstance(tokenizer, FrozenTokenizer):
         tokenizer = FrozenTokenizer.load(tok_path)
 
     seq_len = int(cfg["data"]["seq_len"])
@@ -301,22 +371,28 @@ def train(config_path: str, resume_override: str | None = None) -> Path:
 
             input_ids = batch["input_ids"].to(device)
             labels = batch["labels"].to(device)
-            _, loss = model(input_ids, labels)
-            optimizer.zero_grad(set_to_none=True)
+            use_amp = device.type == "cuda" and dtype in {torch.bfloat16, torch.float16}
+            with torch.autocast(device_type=device.type, dtype=dtype or torch.float32, enabled=use_amp):
+                _, loss = model(input_ids, labels)
+                loss = loss / grad_accum
             loss.backward()
-            if grad_clip > 0:
-                last_grad_norm = float(
-                    torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip)
-                )
-            else:
-                last_grad_norm = 0.0
-            optimizer.step()
-
-            step += 1
             ntok = int(input_ids.numel())
             tokens_seen += ntok
             tokens_this_run += ntok
-            last_loss = float(loss.item())
+            last_loss = float(loss.item() * grad_accum)
+            step += 1
+
+            if step % grad_accum == 0 or (
+                total_steps > 0 and step >= total_steps
+            ) or (token_budget is not None and tokens_seen >= token_budget):
+                if grad_clip > 0:
+                    last_grad_norm = float(
+                        torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip)
+                    )
+                else:
+                    last_grad_norm = 0.0
+                optimizer.step()
+                optimizer.zero_grad(set_to_none=True)
 
             should_log = step % log_every == 0 or (
                 total_steps > 0 and step == total_steps

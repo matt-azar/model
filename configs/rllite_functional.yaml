@@ -1,0 +1,36 @@
+# Milestone F: scaled RL-lite on verified winners from GSM8K SFT policy.
+seed: 42
+device: auto
+dtype: float32
+manifest: data/manifest.json
+
+tokenizer:
+  hf_name: sshleifer/tiny-gpt2
+
+model:
+  hf_name: sshleifer/tiny-gpt2
+
+data:
+  sft: true
+  train_path: data/rllite/winners.jsonl
+  val_path: data/real/sft/gsm8k_val.jsonl
+  seq_len: 256
+  batch_size: 2
+
+train:
+  mode: sft
+  steps: 80
+  lr: 5.0e-5
+  weight_decay: 0.01
+  grad_clip: 1.0
+  grad_accum: 2
+  log_every: 10
+  save_every: 40
+  eval_every: 40
+  eval_batches: 4
+  run_name: rllite_functional
+
+checkpoint:
+  dir: runs/functional/rllite
+  init_from: runs/functional/sft/ckpt_latest.pt
+  resume: null

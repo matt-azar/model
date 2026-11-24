@@ -10,6 +10,10 @@ dependencies = [
   "tokenizers>=0.19",
   "pyarrow>=14.0",
   "numpy>=2.0",
+  "transformers>=4.40",
+  "accelerate>=0.30",
+  "safetensors>=0.4",
+  "datasets>=2.18",
 ]
 
 [project.optional-dependencies]

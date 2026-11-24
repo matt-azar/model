@@ -1,0 +1,24 @@
+# CI-friendly HF base (tiny). Override with SMOLLM for real baseline.
+seed: 42
+device: auto
+dtype: float32
+manifest: data/manifest.json
+
+tokenizer:
+  hf_name: sshleifer/tiny-gpt2
+
+model:
+  hf_name: sshleifer/tiny-gpt2
+
+data:
+  path: data/toy/documents.jsonl
+  seq_len: 64
+  batch_size: 1
+
+generate:
+  prompt: "Hello"
+  max_new_tokens: 8
+  temperature: 0.0
+
+checkpoint:
+  dir: runs/functional/base_smoke

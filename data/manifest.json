@@ -134,6 +134,50 @@
       "notes": "Short multiple-choice reasoning fixtures.",
       "sha256": "baa96ebe81d58d22daf53fc94ac5d74b6624596ce4bb50c0847cf4675315f735",
       "bytes": 1468
+    },
+    {
+      "name": "real-sample-train",
+      "path": "data/real/sample/train.jsonl",
+      "stage": "pretrain",
+      "license": "CC0-1.0",
+      "url": null,
+      "stand_in": false,
+      "notes": "Gate fixture for Milestone B (cycle to \u22651B tokens). Overnight: replace with FineWeb-Edu sample.",
+      "sha256": "6866fea970e65696774bddd3f82e0988b9745bbac36c9a94b6d8e3b7278ad5d3",
+      "bytes": 7869
+    },
+    {
+      "name": "real-sample-val",
+      "path": "data/real/sample/val.jsonl",
+      "stage": "pretrain",
+      "license": "CC0-1.0",
+      "url": null,
+      "stand_in": false,
+      "notes": "Holdout for val_lm_loss on real-path configs.",
+      "sha256": "4f5dc080718979c48ca5e8a1eca27b35617db8a590c2b9492404295f22f7c892",
+      "bytes": 871
+    },
+    {
+      "name": "gsm8k-train",
+      "path": "data/real/sft/gsm8k_train.jsonl",
+      "stage": "sft",
+      "license": "MIT (GSM8K) or CC0 synthetic fixture",
+      "url": "https://huggingface.co/datasets/openai/gsm8k",
+      "stand_in": false,
+      "notes": "Milestone D SFT corpus.",
+      "sha256": "30a3d73b75834cb743f5b584425dde0378d108f68582de7e75ab30815885812c",
+      "bytes": 226334
+    },
+    {
+      "name": "gsm8k-test",
+      "path": "data/real/eval/gsm8k_test.jsonl",
+      "stage": "eval",
+      "license": "MIT (GSM8K) or CC0 synthetic fixture",
+      "url": "https://huggingface.co/datasets/openai/gsm8k",
+      "stand_in": false,
+      "notes": "Milestone E official GSM8K-format eval.",
+      "sha256": "155186ff4194211d59cfad6492b07035fcfb51669a0e20e52bb1dd6c1a25147e",
+      "bytes": 48218
     }
   ]
 }

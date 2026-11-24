@@ -13,8 +13,12 @@ venv/
 runs/
 data/large/
 data/personal/
+data/real/**
+!data/real/README.md
 data/rllite/*.jsonl
 !data/rllite/README.md
 *.pt
 !data/toy/**
 .DS_Store
+hf_cache/
+.cache/

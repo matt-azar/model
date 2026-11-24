@@ -1,0 +1,46 @@
+# Milestone C overnight CPT on SmolLM-135M + real mix (1–5B token budget).
+# Launch:
+#   export PYTHONPATH=.
+#   python3 -m src.train --config configs/cpt_overnight.yaml
+# Resume:
+#   python3 -m src.train --config configs/cpt_overnight.yaml \
+#     --resume runs/functional/cpt/ckpt_latest.pt
+seed: 42
+device: auto
+dtype: bf16
+manifest: data/manifest.json
+
+tokenizer:
+  hf_name: HuggingFaceTB/SmolLM-135M
+
+model:
+  hf_name: HuggingFaceTB/SmolLM-135M
+
+data:
+  stand_in: false
+  streaming: true
+  train_path: data/real/train.jsonl
+  val_path: data/real/val.jsonl
+  seq_len: 1024
+  batch_size: 1
+
+train:
+  mode: pretrain
+  steps: null
+  token_budget: 1000000000  # start at 1B; raise toward 5B when stable
+  lr: 5.0e-5
+  weight_decay: 0.1
+  grad_clip: 1.0
+  grad_accum: 16
+  activation_checkpointing: true
+  log_every: 20
+  save_every: 500
+  eval_every: 200
+  eval_batches: 20
+  overfit_loss_threshold: null
+  run_name: cpt_overnight
+
+checkpoint:
+  dir: runs/functional/cpt
+  init_from: HuggingFaceTB/SmolLM-135M
+  resume: null

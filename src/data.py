@@ -112,13 +112,19 @@ def load_configured_tokenizer(
     cfg: dict,
     texts: list[str] | None = None,
 ) -> TokenizerProto:
-    """Load frozen tokenizer from config, else build char tokenizer from texts."""
+    """Load HF / frozen tokenizer from config, else build char tokenizer from texts."""
     tok_cfg = cfg.get("tokenizer") or {}
+    model_cfg = cfg.get("model") or {}
+    hf_name = tok_cfg.get("hf_name") or tok_cfg.get("hf_model") or model_cfg.get("hf_name")
+    if hf_name:
+        from src.hf_adapter import HFTokenizer
+
+        return HFTokenizer.from_pretrained(str(hf_name))
     path = tok_cfg.get("path")
     if path:
         return FrozenTokenizer.load(path)
     if texts is None:
-        raise ValueError("texts required when tokenizer.path is not set")
+        raise ValueError("texts required when tokenizer.path / hf_name is not set")
     return build_tokenizer(texts)
 
 

@@ -227,6 +227,10 @@ def train_frozen_bpe(
 
 def load_tokenizer_from_checkpoint_state(state: dict) -> TokenizerProto:
     kind = state.get("kind", "char")
+    if kind == "hf":
+        from src.hf_adapter import HFTokenizer
+
+        return HFTokenizer.from_state(state)
     if kind == "frozen":
         return FrozenTokenizer.from_state(state)
     return CharTokenizer.from_state(state)

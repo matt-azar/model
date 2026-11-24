@@ -1,4 +1,4 @@
-"""Load a checkpoint and decode text."""
+"""Load a checkpoint and decode text (toy GPT or HF)."""
 
 from __future__ import annotations
 
@@ -8,9 +8,39 @@ from pathlib import Path
 import torch
 import yaml
 
+from src.hf_adapter import HFCausalLM, HFTokenizer
 from src.model import GPT, ModelConfig
 from src.tokenizer import load_tokenizer_from_checkpoint_state
 from src.train import load_checkpoint, resolve_device
+
+
+def _load_model_and_tokenizer(ckpt_path: str | Path, device: torch.device):
+    path = Path(ckpt_path)
+    # HF directory with adapter meta / config.
+    if path.is_dir():
+        model = HFCausalLM.from_pretrained(str(path)).to(device)
+        tokenizer = HFTokenizer.from_pretrained(str(path))
+        return model, tokenizer
+
+    ckpt = load_checkpoint(path, map_location=device)
+    kind = ckpt.get("kind") or (ckpt.get("model_config") or {}).get("kind")
+    if kind == "hf":
+        hf_dir = ckpt.get("hf_dir")
+        hf_name = ckpt.get("hf_name") or ckpt["model_config"].get("hf_name")
+        load_from = hf_dir if hf_dir and Path(str(hf_dir)).is_dir() else hf_name
+        model = HFCausalLM.from_pretrained(str(load_from)).to(device)
+        if "model" in ckpt:
+            model.load_state_dict(ckpt["model"], strict=False)
+        tokenizer = load_tokenizer_from_checkpoint_state(ckpt["tokenizer"])
+        if not isinstance(tokenizer, HFTokenizer):
+            tokenizer = HFTokenizer.from_pretrained(str(hf_name))
+        return model, tokenizer
+
+    tokenizer = load_tokenizer_from_checkpoint_state(ckpt["tokenizer"])
+    mcfg = ModelConfig(**ckpt["model_config"])
+    model = GPT(mcfg).to(device)
+    model.load_state_dict(ckpt["model"])
+    return model, tokenizer
 
 
 def generate_text(
@@ -21,11 +51,7 @@ def generate_text(
     device_name: str = "auto",
 ) -> str:
     device = resolve_device(device_name)
-    ckpt = load_checkpoint(Path(ckpt_path), map_location=device)
-    tokenizer = load_tokenizer_from_checkpoint_state(ckpt["tokenizer"])
-    mcfg = ModelConfig(**ckpt["model_config"])
-    model = GPT(mcfg).to(device)
-    model.load_state_dict(ckpt["model"])
+    model, tokenizer = _load_model_and_tokenizer(ckpt_path, device)
     model.eval()
 
     ids = tokenizer.encode(prompt, add_bos=True, add_eos=False)
