@@ -1,0 +1,34 @@
+# Unified eval harness v1 configuration.
+seed: 42
+temperature: 0.0
+max_new_tokens: 96
+device: auto
+
+benchmarks:
+  - name: gsm8k_style
+    adapter: gsm8k_style
+    path: data/sft/gsm8k_style_eval.jsonl
+    max_new_tokens: 96
+
+  - name: personal_smoke
+    adapter: personal_smoke
+    path: data/personal_smoke.jsonl
+    max_new_tokens: 96
+
+  - name: code_smoke
+    adapter: code_smoke
+    path: data/eval/code_smoke.jsonl
+    max_new_tokens: 96
+
+  - name: logic_mc
+    adapter: logic_mc
+    path: data/eval/logic_mc.jsonl
+    max_new_tokens: 32
+
+  - name: val_lm_loss
+    adapter: val_lm_loss
+    path: data/standin/val.jsonl
+    args:
+      max_batches: 10
+      seq_len: 128
+      batch_size: 8

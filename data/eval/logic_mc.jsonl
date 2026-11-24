@@ -1,0 +1,8 @@
+{"id": "logic-all-a-are-b", "question": "If all A are B, and x is A, what follows?", "choices": {"A": "x is B", "B": "x is not B", "C": "No conclusion", "D": "All B are A"}, "answer": "A"}
+{"id": "logic-rain", "question": "If it rains, the ground is wet. The ground is dry. What follows?", "choices": {"A": "It rained", "B": "It did not rain", "C": "It might have rained", "D": "The ground is wet"}, "answer": "B"}
+{"id": "logic-numbers", "question": "Which number is even?", "choices": {"A": "3", "B": "7", "C": "10", "D": "11"}, "answer": "C"}
+{"id": "logic-transitive", "question": "Ann is taller than Bo. Bo is taller than Cy. Who is tallest?", "choices": {"A": "Ann", "B": "Bo", "C": "Cy", "D": "Cannot tell"}, "answer": "A"}
+{"id": "logic-set", "question": "A box has only red or blue balls. You draw a red ball. Which is true?", "choices": {"A": "All balls are red", "B": "At least one ball is red", "C": "No ball is red", "D": "All balls are blue"}, "answer": "B"}
+{"id": "logic-math", "question": "What is 2 + 2?", "choices": {"A": "3", "B": "4", "C": "5", "D": "22"}, "answer": "B"}
+{"id": "logic-opposite", "question": "The opposite of true is?", "choices": {"A": "true", "B": "false", "C": "maybe", "D": "unknown"}, "answer": "B"}
+{"id": "logic-subset", "question": "Every square is a rectangle. Shape S is a square. Therefore:", "choices": {"A": "S is a rectangle", "B": "S is a circle", "C": "S is not a rectangle", "D": "No conclusion"}, "answer": "A"}

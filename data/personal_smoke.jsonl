@@ -1,4 +1,20 @@
 {"id": "format-apples", "prompt": "### Instruction\nSam has 3 apples and buys 5 more. How many apples does Sam have?\n\n### Response\n", "expected": "Final answer: 8", "expect_scratchpad": true}
 {"id": "format-two-plus-two", "prompt": "### Instruction\nWhat is two plus two?\n\n### Response\n", "expected": "Final answer: 4", "expect_scratchpad": true}
 {"id": "format-minus", "prompt": "### Instruction\nWhat is 15 minus 7?\n\n### Response\n", "expected": "Final answer: 8", "expect_scratchpad": true}
+{"id": "format-dozen", "prompt": "### Instruction\nA carton holds 12 eggs. If 3 are used, how many remain?\n\n### Response\n", "expected": "Final answer: 9", "expect_scratchpad": true}
+{"id": "format-pages", "prompt": "### Instruction\nMaya read 20 pages yesterday and 5 today. How many pages total?\n\n### Response\n", "expected": "Final answer: 25", "expect_scratchpad": true}
+{"id": "format-stickers", "prompt": "### Instruction\nLeo had 15 stickers and gave away 7. How many does he have left?\n\n### Response\n", "expected": "Final answer: 8", "expect_scratchpad": true}
+{"id": "format-boxes", "prompt": "### Instruction\nEach box has 4 pencils. How many pencils in 6 boxes?\n\n### Response\n", "expected": "Final answer: 24", "expect_scratchpad": true}
+{"id": "format-share", "prompt": "### Instruction\n18 candies are shared equally among 3 kids. How many each?\n\n### Response\n", "expected": "Final answer: 6", "expect_scratchpad": true}
+{"id": "format-add-9-4", "prompt": "### Instruction\nWhat is 9 plus 4?\n\n### Response\n", "expected": "Final answer: 13", "expect_scratchpad": true}
+{"id": "format-sub-20-6", "prompt": "### Instruction\nWhat is 20 minus 6?\n\n### Response\n", "expected": "Final answer: 14", "expect_scratchpad": true}
+{"id": "format-word-marbles", "prompt": "### Instruction\nA jar has 8 marbles. Someone adds 3 more. How many marbles are in the jar now?\n\n### Response\n", "expected": "Final answer: 11", "expect_scratchpad": true}
+{"id": "format-word-buses", "prompt": "### Instruction\nThere are 4 buses with 2 wheels shown on a toy each. How many wheels in total?\n\n### Response\n", "expected": "Final answer: 8", "expect_scratchpad": true}
+{"id": "code-add-prompt", "prompt": "### Instruction\nWrite a Python function add(a, b) that returns the sum of a and b.\n\n### Response\n", "expected": "def add", "expect_scratchpad": false}
+{"id": "code-double-prompt", "prompt": "### Instruction\nWrite a Python function double(x) that returns 2*x.\n\n### Response\n", "expected": "def double", "expect_scratchpad": false}
+{"id": "logic-even", "prompt": "### Instruction\nWhich number is even?\nA. 3\nB. 7\nC. 10\nD. 11\n\n### Response\n", "expected": "C", "expect_scratchpad": false}
+{"id": "logic-tallest", "prompt": "### Instruction\nAnn is taller than Bo. Bo is taller than Cy. Who is tallest?\nA. Ann\nB. Bo\nC. Cy\nD. Cannot tell\n\n### Response\n", "expected": "A", "expect_scratchpad": false}
+{"id": "daily-summary", "prompt": "### Instruction\nIn one sentence, explain what a checkpoint file is for in model training.\n\n### Response\n", "expected": "checkpoint", "expect_scratchpad": false}
+{"id": "daily-cot", "prompt": "### Instruction\nShow your work, then Final answer: what is 5 plus 7?\n\n### Response\n", "expected": "Final answer: 12", "expect_scratchpad": true}
 {"id": "capital-france", "prompt": "The capital of France is", "expected": "Paris", "expect_scratchpad": false}
+{"id": "final-answer-only", "prompt": "### Instruction\nWhat is 2 plus 2?\n\n### Response\nShow your work:\n2 + 2 = 4.\nFinal answer:", "expected": "4", "expect_scratchpad": false}

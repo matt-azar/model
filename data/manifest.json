@@ -22,8 +22,8 @@
       "url": null,
       "stand_in": false,
       "notes": "Tiny exact-match smoke set for Phase 0 exit criteria.",
-      "sha256": "328cd7f25ee7475044a2d75a6e468072d0ba8e41559416160e2a977185889e1e",
-      "bytes": 614
+      "sha256": "9c529dfb2ada4e0aa29503082501ea0bc36ad39e5d5c1b129eb3bb47efd6f646",
+      "bytes": 3607
     },
     {
       "name": "standin-train-jsonl",
@@ -112,6 +112,28 @@
       "notes": "Local GSM8K-style exact-match eval for Phase 3 exit criteria.",
       "sha256": "85e4957c10f29f10eadfdb127c1265f0e0945cb57e0c990cefd642aab17395ff",
       "bytes": 12544
+    },
+    {
+      "name": "code-smoke",
+      "path": "data/eval/code_smoke.jsonl",
+      "stage": "eval",
+      "license": "CC0-1.0",
+      "url": null,
+      "stand_in": false,
+      "notes": "Tiny MBPP-style local code asserts.",
+      "sha256": "b3ab9aa18b2641fd47bbc1148cefbe471528ea8fb7671ea46e20fb4970dfbe59",
+      "bytes": 1183
+    },
+    {
+      "name": "logic-mc",
+      "path": "data/eval/logic_mc.jsonl",
+      "stage": "eval",
+      "license": "CC0-1.0",
+      "url": null,
+      "stand_in": false,
+      "notes": "Short multiple-choice reasoning fixtures.",
+      "sha256": "baa96ebe81d58d22daf53fc94ac5d74b6624596ce4bb50c0847cf4675315f735",
+      "bytes": 1468
     }
   ]
 }
