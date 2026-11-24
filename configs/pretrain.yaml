@@ -1,0 +1,31 @@
+# Stub for Phase 2. Not used by Phase 0 smoke.
+seed: 42
+device: auto
+dtype: float32
+
+model:
+  n_layer: 4
+  n_embd: 256
+  n_head: 4
+  block_size: 512
+  dropout: 0.0
+  bias: false
+
+data:
+  path: data/toy/documents.jsonl
+  seq_len: 512
+  batch_size: 4
+
+train:
+  steps: 2000
+  lr: 1.0e-3
+  weight_decay: 0.1
+  grad_clip: 1.0
+  log_every: 50
+  save_every: 500
+  overfit_loss_threshold: null
+  run_name: pretrain
+
+checkpoint:
+  dir: runs/pretrain
+  resume: null

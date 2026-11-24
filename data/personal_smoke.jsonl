@@ -1,0 +1,3 @@
+{"id": "capital-france", "prompt": "The capital of France is", "expected": "Paris"}
+{"id": "two-plus-two", "prompt": "Two plus two equals", "expected": "four"}
+{"id": "final-answer-format", "prompt": "Two plus two equals four. Show your work: 2 + 2 = 4. Final answer:", "expected": "4"}

@@ -1,0 +1,31 @@
+# Stub for Phase 3. Not used by Phase 0 smoke.
+seed: 42
+device: auto
+dtype: float32
+
+model:
+  n_layer: 4
+  n_embd: 256
+  n_head: 4
+  block_size: 512
+  dropout: 0.0
+  bias: false
+
+data:
+  path: data/toy/documents.jsonl
+  seq_len: 512
+  batch_size: 4
+
+train:
+  steps: 500
+  lr: 5.0e-4
+  weight_decay: 0.01
+  grad_clip: 1.0
+  log_every: 25
+  save_every: 250
+  overfit_loss_threshold: null
+  run_name: sft
+
+checkpoint:
+  dir: runs/sft
+  resume: null
