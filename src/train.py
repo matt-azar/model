@@ -20,7 +20,8 @@ from src.data import (
 )
 from src.manifest import sha256_file
 from src.model import GPT, ModelConfig
-from src.tokenizer import load_tokenizer_from_checkpoint_state
+from src.sft_data import make_sft_dataloader
+from src.tokenizer import FrozenTokenizer, load_tokenizer_from_checkpoint_state
 
 
 def load_config(path: str | Path) -> dict:
@@ -151,7 +152,15 @@ def train(config_path: str, resume_override: str | None = None) -> Path:
     )
 
     train_path, val_path = _data_paths(cfg)
-    train_texts = load_texts(train_path)
+    mode = str(cfg.get("train", {}).get("mode", "pretrain")).lower()
+    sft_mode = mode == "sft" or bool(cfg["data"].get("sft", False))
+
+    # Tokenizer: prefer frozen path; for non-SFT char fallback needs texts.
+    train_texts: list[str] | None = None
+    if not ((cfg.get("tokenizer") or {}).get("path")):
+        if sft_mode:
+            raise ValueError("SFT requires tokenizer.path (frozen tokenizer)")
+        train_texts = load_texts(train_path)
     tokenizer = load_configured_tokenizer(cfg, texts=train_texts)
 
     mcfg = ModelConfig(
@@ -173,6 +182,16 @@ def train(config_path: str, resume_override: str | None = None) -> Path:
 
     start_step = 0
     tokens_seen = 0
+
+    # init_from: load weights only (SFT from a Phase 2 base).
+    init_from = cfg.get("checkpoint", {}).get("init_from")
+    if init_from:
+        ckpt = load_checkpoint(Path(init_from), map_location=device)
+        model.load_state_dict(ckpt["model"])
+        if "tokenizer" in ckpt and not (cfg.get("tokenizer") or {}).get("path"):
+            tokenizer = load_tokenizer_from_checkpoint_state(ckpt["tokenizer"])
+        print(f"initialized weights from {init_from}")
+
     resume_path = resume_override or cfg.get("checkpoint", {}).get("resume")
     if resume_path:
         ckpt = load_checkpoint(Path(resume_path), map_location=device)
@@ -183,11 +202,24 @@ def train(config_path: str, resume_override: str | None = None) -> Path:
         tokenizer = load_tokenizer_from_checkpoint_state(ckpt["tokenizer"])
         print(f"resumed from {resume_path} at step {start_step} tokens={tokens_seen}")
 
+    # Ensure frozen tokenizer stays frozen when configured.
+    tok_path = (cfg.get("tokenizer") or {}).get("path")
+    if tok_path and not isinstance(tokenizer, FrozenTokenizer):
+        tokenizer = FrozenTokenizer.load(tok_path)
+
     seq_len = int(cfg["data"]["seq_len"])
     batch_size = int(cfg["data"]["batch_size"])
     use_streaming = bool(cfg["data"].get("streaming", False))
 
-    if use_streaming:
+    if sft_mode:
+        loader = make_sft_dataloader(
+            train_path,
+            tokenizer,
+            seq_len=seq_len,
+            batch_size=batch_size,
+            seed=seed,
+        )
+    elif use_streaming:
         loader = make_streaming_dataloader(
             paths=[train_path],
             tokenizer=tokenizer,
@@ -199,6 +231,8 @@ def train(config_path: str, resume_override: str | None = None) -> Path:
             stand_in=bool(cfg["data"].get("stand_in", False)),
         )
     else:
+        if train_texts is None:
+            train_texts = load_texts(train_path)
         loader = make_dataloader(
             train_texts,
             tokenizer,
@@ -210,14 +244,23 @@ def train(config_path: str, resume_override: str | None = None) -> Path:
 
     val_loader = None
     if val_path:
-        val_texts = load_texts(val_path)
-        val_loader = make_dataloader(
-            val_texts,
-            tokenizer,
-            seq_len=seq_len,
-            batch_size=batch_size,
-            seed=seed + 1,
-        )
+        if sft_mode:
+            val_loader = make_sft_dataloader(
+                val_path,
+                tokenizer,
+                seq_len=seq_len,
+                batch_size=batch_size,
+                seed=seed + 1,
+            )
+        else:
+            val_texts = load_texts(val_path)
+            val_loader = make_dataloader(
+                val_texts,
+                tokenizer,
+                seq_len=seq_len,
+                batch_size=batch_size,
+                seed=seed + 1,
+            )
 
     total_steps = int(cfg["train"].get("steps") or 0)
     token_budget = cfg["train"].get("token_budget")

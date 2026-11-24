@@ -22,8 +22,8 @@
       "url": null,
       "stand_in": false,
       "notes": "Tiny exact-match smoke set for Phase 0 exit criteria.",
-      "sha256": "af2c6bf4c5dc676acb33727d65ec529f4fdf05397d0a2ad44bf4afb6f59dd1fd",
-      "bytes": 287
+      "sha256": "328cd7f25ee7475044a2d75a6e468072d0ba8e41559416160e2a977185889e1e",
+      "bytes": 614
     },
     {
       "name": "standin-train-jsonl",
@@ -79,6 +79,39 @@
       "notes": "Frozen BPE artifact. Do not retrain casually; bump manifest when replaced.",
       "sha256": "322f6017c4e873f268f8a5fe457a958b29cb1c4f72c01da85ef25db7b24b3170",
       "bytes": 61798
+    },
+    {
+      "name": "sft-train",
+      "path": "data/sft/train.jsonl",
+      "stage": "sft",
+      "license": "CC0-1.0 (curated/synthetic arithmetic CoT authored for this repo)",
+      "url": null,
+      "stand_in": false,
+      "notes": "Phase 3 curated SFT train split with scratchpad + Final answer.",
+      "sha256": "774c4d9ead12e884e79873385136d2a66bbb7cfe4f4ff82b2c21d1247aab3da3",
+      "bytes": 151803
+    },
+    {
+      "name": "sft-val",
+      "path": "data/sft/val.jsonl",
+      "stage": "sft",
+      "license": "CC0-1.0 (curated/synthetic arithmetic CoT authored for this repo)",
+      "url": null,
+      "stand_in": false,
+      "notes": "Phase 3 SFT holdout split.",
+      "sha256": "b33033e34ead0dfae5f10dc9c7b32453700a840ef91dafb8bcd1315f6e117146",
+      "bytes": 17406
+    },
+    {
+      "name": "gsm8k-style-eval",
+      "path": "data/sft/gsm8k_style_eval.jsonl",
+      "stage": "eval",
+      "license": "CC0-1.0 (curated/synthetic; not the real GSM8K dataset)",
+      "url": null,
+      "stand_in": false,
+      "notes": "Local GSM8K-style exact-match eval for Phase 3 exit criteria.",
+      "sha256": "85e4957c10f29f10eadfdb127c1265f0e0945cb57e0c990cefd642aab17395ff",
+      "bytes": 12544
     }
   ]
 }
