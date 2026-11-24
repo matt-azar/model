@@ -1,0 +1,42 @@
+# Phase 5 RL-lite: prompt-masked SFT on rejection-sampling winners.
+seed: 42
+device: auto
+dtype: float32
+manifest: data/manifest.json
+
+tokenizer:
+  path: tokenizer
+
+model:
+  n_layer: 2
+  n_embd: 128
+  n_head: 4
+  block_size: 128
+  dropout: 0.0
+  bias: false
+
+data:
+  sft: true
+  train_path: data/rllite/winners.jsonl
+  val_path: data/sft/val.jsonl
+  seq_len: 128
+  batch_size: 8
+
+train:
+  mode: sft
+  steps: 500
+  token_budget: null
+  lr: 8.0e-4
+  weight_decay: 0.01
+  grad_clip: 1.0
+  log_every: 25
+  save_every: 100
+  eval_every: 100
+  eval_batches: 20
+  overfit_loss_threshold: null
+  run_name: rllite
+
+checkpoint:
+  dir: runs/phase5/rllite
+  init_from: runs/phase3/sft/ckpt_latest.pt
+  resume: null
