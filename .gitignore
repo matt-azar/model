@@ -12,6 +12,7 @@ venv/
 .ruff_cache/
 runs/
 data/large/
+data/personal/
 *.pt
 !data/toy/**
 .DS_Store

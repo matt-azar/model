@@ -10,8 +10,9 @@ from pathlib import Path
 import torch
 import yaml
 
-from src.data import build_tokenizer, load_texts, make_dataloader
+from src.data import load_configured_tokenizer, load_texts, make_dataloader
 from src.model import GPT, ModelConfig
+from src.tokenizer import load_tokenizer_from_checkpoint_state
 
 
 def load_config(path: str | Path) -> dict:
@@ -66,7 +67,7 @@ def train(config_path: str, resume_override: str | None = None) -> Path:
     metrics_path = run_dir / "metrics.jsonl"
 
     texts = load_texts(cfg["data"]["path"])
-    tokenizer = build_tokenizer(texts)
+    tokenizer = load_configured_tokenizer(cfg, texts=texts)
 
     mcfg = ModelConfig(
         vocab_size=tokenizer.vocab_size,
@@ -91,7 +92,7 @@ def train(config_path: str, resume_override: str | None = None) -> Path:
         model.load_state_dict(ckpt["model"])
         optimizer.load_state_dict(ckpt["optimizer"])
         start_step = int(ckpt["step"])
-        tokenizer = type(tokenizer).from_state(ckpt["tokenizer"])
+        tokenizer = load_tokenizer_from_checkpoint_state(ckpt["tokenizer"])
         print(f"resumed from {resume_path} at step {start_step}")
 
     loader = make_dataloader(

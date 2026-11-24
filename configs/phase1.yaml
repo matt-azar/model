@@ -1,0 +1,42 @@
+# Phase 1: frozen tokenizer + streaming stand-in data pipeline.
+seed: 42
+device: auto
+dtype: float32
+
+tokenizer:
+  path: tokenizer
+
+model:
+  n_layer: 2
+  n_embd: 64
+  n_head: 4
+  block_size: 128
+  dropout: 0.0
+  bias: false
+
+data:
+  # License-documented toy stand-in (see data/standin/STANDIN.md).
+  stand_in: true
+  train_path: data/standin/train.jsonl
+  val_path: data/standin/val.jsonl
+  parquet_train_path: data/standin/train.parquet
+  seq_len: 128
+  batch_size: 16
+
+stream:
+  target_tokens: 1000000000  # Phase 1 exit: stream >1B tokens
+  log_every_tokens: 100000000
+
+train:
+  steps: 50
+  lr: 3.0e-3
+  weight_decay: 0.01
+  grad_clip: 1.0
+  log_every: 10
+  save_every: 50
+  overfit_loss_threshold: null
+  run_name: phase1
+
+checkpoint:
+  dir: runs/phase1
+  resume: null

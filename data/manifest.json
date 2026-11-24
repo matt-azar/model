@@ -1,18 +1,84 @@
 {
+  "version": 1,
+  "notes": "License-documented datasets for the foundation lab. Personal data must never appear in the default train config.",
+  "personal_data_policy": "Keep private docs under data/personal/ (gitignored). Opt-in only; excluded from default manifests used for shared/public recipes.",
   "datasets": [
     {
       "name": "toy-documents",
       "path": "data/toy/documents.jsonl",
       "stage": "pretrain-smoke",
       "license": "CC0-1.0 (synthetic toy text authored for this repo)",
-      "notes": "Phase 0 overfit corpus only; not a real pretrain mix."
+      "url": null,
+      "stand_in": false,
+      "notes": "Phase 0 overfit corpus only; not a real pretrain mix.",
+      "sha256": "ee4b5de4a935baca476a97112aa6f6dc43c799fabc4dc240684fa6b021d980d4",
+      "bytes": 230
     },
     {
       "name": "personal-smoke",
       "path": "data/personal_smoke.jsonl",
       "stage": "eval",
       "license": "CC0-1.0 (synthetic prompts authored for this repo)",
-      "notes": "Tiny exact-match smoke set for Phase 0 exit criteria."
+      "url": null,
+      "stand_in": false,
+      "notes": "Tiny exact-match smoke set for Phase 0 exit criteria.",
+      "sha256": "af2c6bf4c5dc676acb33727d65ec529f4fdf05397d0a2ad44bf4afb6f59dd1fd",
+      "bytes": 287
+    },
+    {
+      "name": "standin-train-jsonl",
+      "path": "data/standin/train.jsonl",
+      "stage": "pretrain",
+      "license": "CC0-1.0 (synthetic stand-in authored for this repo)",
+      "url": null,
+      "stand_in": true,
+      "notes": "Clearly marked toy stand-in for Phase 1 streaming/packing. Replace with license-clean real mix later.",
+      "sha256": "ea186874a80352a9a0376071c551bdd1583935b19859dbd2b5303d8145f7d917",
+      "bytes": 274266
+    },
+    {
+      "name": "standin-val-jsonl",
+      "path": "data/standin/val.jsonl",
+      "stage": "pretrain",
+      "license": "CC0-1.0 (synthetic stand-in authored for this repo)",
+      "url": null,
+      "stand_in": true,
+      "notes": "Held-out split of the Phase 1 stand-in mix.",
+      "sha256": "a71e90e73264d5d361e04ff3c2608cdcc20548bd41743109d1402054ce2a4edb",
+      "bytes": 30524
+    },
+    {
+      "name": "standin-train-parquet",
+      "path": "data/standin/train.parquet",
+      "stage": "pretrain",
+      "license": "CC0-1.0 (synthetic stand-in authored for this repo)",
+      "url": null,
+      "stand_in": true,
+      "notes": "Parquet twin of standin-train-jsonl for format coverage.",
+      "sha256": "f3ca33e951d176b3a0b90facb55b4a2602680e953d72751dd024adc3d7a49d73",
+      "bytes": 50967
+    },
+    {
+      "name": "standin-val-parquet",
+      "path": "data/standin/val.parquet",
+      "stage": "pretrain",
+      "license": "CC0-1.0 (synthetic stand-in authored for this repo)",
+      "url": null,
+      "stand_in": true,
+      "notes": "Parquet twin of standin-val-jsonl for format coverage.",
+      "sha256": "8b9e26079b9d9731295a15315622a77e8345b31a9f21d80d895f5792c4cb05ff",
+      "bytes": 6743
+    },
+    {
+      "name": "frozen-tokenizer",
+      "path": "tokenizer/tokenizer.json",
+      "stage": "tokenizer",
+      "license": "Apache-2.0 tooling (tokenizers); vocab trained on CC0 stand-in + toy text in this repo",
+      "url": null,
+      "stand_in": false,
+      "notes": "Frozen BPE artifact. Do not retrain casually; bump manifest when replaced.",
+      "sha256": "c34bf2067884bb19f7df533506b9b5bc00eca05b24308d862c5c6ecb71fc1156",
+      "bytes": 61694
     }
   ]
 }

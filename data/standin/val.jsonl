@@ -1,0 +1,200 @@
+{"text": "[stand_in doc=795 id=77425c3c489e] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1468 id=848b1a61d948] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=478 id=284552abb18c] Science note: water freezes at 0 C and boils at 100 C at sea level.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=807 id=49465ef70317] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1505 id=759bb411d1ca] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1279 id=45594a3c1f1b] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1143 id=e8c370f41dc1] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1432 id=3010b30f6ab1] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=83 id=ee63b8b4b6ca] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1956 id=e8dcd90b259d] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1581 id=02ced3e22304] Math drill: 35 + 28 = 63. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1326 id=c9fb5db7ba68] Science note: water freezes at 0 C and boils at 100 C at sea level.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1023 id=892b5c868678] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=896 id=324a32c065b4] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=770 id=589c99ac2568] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1147 id=41a19ace79d3] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1834 id=06c83cffa33f] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1905 id=86461e8fb68c] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1065 id=1891437388af] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1458 id=ed3e08227742] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=997 id=db2a55c3dd67] Math drill: 33 + 40 = 73. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=792 id=33a7e09de1d6] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=769 id=ed853b717ecf] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1257 id=1ff3e781a151] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=352 id=3eb14c05dc9a] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=266 id=10256a675e22] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1682 id=7310cfa4e2df] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=42 id=4faa3f44a8a0] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=528 id=62b9c8085ed8] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=97 id=5464311ea814] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1071 id=5a562a1e94ae] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1867 id=0098d222b979] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1013 id=513446570a46] Math drill: 31 + 2 = 33. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1411 id=42358c1f8f2d] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1564 id=b05363522e6e] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=830 id=5a7406f31ce6] Science note: water freezes at 0 C and boils at 100 C at sea level.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=838 id=90c0efe58e83] Science note: water freezes at 0 C and boils at 100 C at sea level.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1123 id=268931745446] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=701 id=30abeefcc04e] Math drill: 45 + 18 = 63. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=342 id=224bcdf3b483] Science note: water freezes at 0 C and boils at 100 C at sea level.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1672 id=aea5661cd8b9] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1796 id=a97453618864] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=802 id=e5d03681cf4b] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=827 id=56e297c3c5df] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1293 id=3893a1f2c5e5] Math drill: 21 + 12 = 33. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1668 id=f9aeb1cc992d] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1619 id=65cc3eab021f] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1715 id=edf6274aa882] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1675 id=885ca41f3729] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1892 id=a28e5eabd840] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=137 id=4ce78afdfa52] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=215 id=7aace90737dc] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1160 id=bc49cd49ba6a] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=27 id=d4d831ca1e48] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=276 id=5015dc5ec5ca] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1621 id=071dcdb5ad58] Math drill: 5 + 8 = 13. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1925 id=817ca6a4ea98] Math drill: 17 + 36 = 53. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1987 id=d18ba1c116ea] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1389 id=b036ceefc5f2] Math drill: 9 + 34 = 43. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=422 id=1b30076f605a] Science note: water freezes at 0 C and boils at 100 C at sea level.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=264 id=cfa790e3f620] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=172 id=b83e9b22979b] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=315 id=c8e491dce5ab] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=731 id=be8ea49ed943] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=253 id=bfb76186a2b8] Math drill: 1 + 32 = 33. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=964 id=1c7d44cbb6a6] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=399 id=102feb04f421] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1797 id=f2235fa3a24d] Math drill: 33 + 40 = 73. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1231 id=b4ff0e97050b] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=251 id=514fe3f2de4a] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=354 id=d1c5825afab4] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1959 id=467aa0277915] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1885 id=16f4f1e16980] Math drill: 47 + 6 = 53. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=874 id=0d4ce22494e2] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1803 id=bc49f88b4f6c] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1066 id=cfdebb74387f] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1353 id=b9172df26095] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1246 id=cdfe8597ba50] Science note: water freezes at 0 C and boils at 100 C at sea level.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1523 id=98716f19030b] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=855 id=9fa0166371ca] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1937 id=4607692caba2] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=183 id=cbf709fd3aa0] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=60 id=80de3facde40] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=573 id=4b2675c99381] Math drill: 11 + 22 = 33. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=91 id=42a2dde3fff7] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=68 id=63221365b33c] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=738 id=0d428711c4ae] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=987 id=04def5410189] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=767 id=583ae4779f9a] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1749 id=cba4a7e76e75] Math drill: 39 + 4 = 43. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1812 id=b4016dcb86f8] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1359 id=7a652fc5442d] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1224 id=08420da2eb2b] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=132 id=c8e1f8665ae7] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1249 id=e244c0382060] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1032 id=f76149351adf] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=926 id=ff6130380a5b] Science note: water freezes at 0 C and boils at 100 C at sea level.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1171 id=6f1ef035fedb] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1684 id=82db6ebf9b83] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=122 id=b56551974e12] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1750 id=501021afa438] Science note: water freezes at 0 C and boils at 100 C at sea level.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=527 id=15dbff306c3d] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1600 id=2bdcdb4bede2] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1114 id=bdaa04bfca06] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1001 id=521410a3c2f3] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=196 id=34f4bb324499] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1406 id=cfcae05eafa1] Science note: water freezes at 0 C and boils at 100 C at sea level.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1914 id=8d2b3df91cb0] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1331 id=7fce2f750255] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=463 id=56909183c9c7] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1183 id=387993a3cdbc] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=401 id=f1c68649065f] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1363 id=19a6ca3b87c3] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=67 id=d717d89fb414] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1677 id=c38c74642949] Math drill: 23 + 0 = 23. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=368 id=0e8ddb396455] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1942 id=b446bf33d869] Science note: water freezes at 0 C and boils at 100 C at sea level.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=69 id=7b0d765daee0] Math drill: 49 + 44 = 93. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=819 id=b5a7d1ac301f] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1163 id=887ad971853a] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1376 id=25f9863d5157] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1580 id=1e6e8d2864d3] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=591 id=2a323b1cc843] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1031 id=e9fdad9633f5] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=426 id=9bf1e9c98ff9] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1419 id=e4dc7d46e17d] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=708 id=177d7410572e] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=759 id=84b5c33c7f72] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1904 id=9994298bc3d0] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=787 id=b132d99defef] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=187 id=76660ebeb007] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=547 id=2f9d16a67e94] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1623 id=261244e94da3] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=971 id=9656afb1fe0f] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1275 id=c6a9a4023f28] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1634 id=101cb06cae27] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1291 id=df484f897e52] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1037 id=1dea446fe4d1] Math drill: 3 + 20 = 23. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1545 id=158f20be09ce] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1949 id=fbf5ea513034] Math drill: 39 + 4 = 43. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1495 id=5433cfd8de39] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=32 id=59b4f5655f75] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1258 id=e4e9df03bd99] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1832 id=39eddb92e66f] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1930 id=a27ae040ce01] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=291 id=bf8028a36cc5] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1879 id=96c1112e086d] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1239 id=d0330b98f53a] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1479 id=538c510af3f0] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=297 id=cb205f9d4bd6] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1332 id=785d332642e4] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1223 id=040f41d6b3cc] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=730 id=0a64242813e4] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1931 id=dec520827bd6] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=652 id=56bd75fc3200] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=518 id=f75993f48716] Science note: water freezes at 0 C and boils at 100 C at sea level.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1100 id=8912fddfd7c5] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1548 id=9499c0f88a6a] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1233 id=570b1c5d2fef] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1625 id=f6f10d5531e4] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1475 id=e1711e0024c5] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=24 id=86981d439a45] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1175 id=63e52f313684] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=535 id=2a693173d9c9] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1695 id=6c152407f718] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1802 id=1c3845ca0651] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1808 id=2e65f79203db] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1977 id=42fbac036e5a] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1109 id=1c1d3c2e651b] Math drill: 19 + 24 = 43. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=800 id=3396040bbab3] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1503 id=4e8014748d8c] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1658 id=dbd3f3b488cd] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1627 id=b6b4bb36829c] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1688 id=eb195b91205f] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1579 id=210de019d618] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=156 id=b8b59ba8365e] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=545 id=8e6620e27504] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1515 id=ac720275bb64] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=265 id=325232a2a67f] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1883 id=6dd31b76ec86] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1207 id=880e5435b19e] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1651 id=416cab397db9] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=955 id=e104a06b1072] Reasoning: first list the given facts, then derive the next step carefully.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1368 id=0852f98a5d32] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1910 id=8e783bab3024] Science note: water freezes at 0 C and boils at 100 C at sea level.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=304 id=9fc09499179f] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=182 id=54fceb868ddb] Science note: water freezes at 0 C and boils at 100 C at sea level.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=288 id=c29b864588cf] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=358 id=5dcf25c1ba06] Science note: water freezes at 0 C and boils at 100 C at sea level.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=199 id=e20c0ff0daf7] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=461 id=982b81356cc7] Math drill: 25 + 38 = 63. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1063 id=a5386b65e63b] Logic: if all A are B, and x is A, then x is B.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=813 id=67fd9a1d817b] Math drill: 31 + 2 = 33. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=121 id=ea5aa83b14f2] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1044 id=d0ae819da5ed] Code comment: prefer clear names, small functions, and verified tests.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=712 id=b2b19eb87468] The capital of France is Paris. Paris is known for the Eiffel Tower.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1965 id=b7905987f131] Math drill: 37 + 16 = 53. Keep the scratchpad short and exact.", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=578 id=97814e0e4079] def add(a, b):\n    return a + b\nassert add(2, 2) == 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=713 id=4710e2640750] Two plus two equals four. Show your work: 2 + 2 = 4. Final answer: 4", "stand_in": true, "license": "CC0-1.0"}
+{"text": "[stand_in doc=1966 id=4996afe9a8ab] Science note: water freezes at 0 C and boils at 100 C at sea level.", "stand_in": true, "license": "CC0-1.0"}
