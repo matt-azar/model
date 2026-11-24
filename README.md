@@ -1,81 +1,51 @@
-# reasoning-llm
+# Reasoning LLM lab
 
-Personal small reasoning LLM lab (Phases 0–5) plus the **functional path** (Milestones A–G): continued-pretrain an open base (SmolLM-135M), real data, GSM8K SFT/eval, RL-lite, local chat.
+Train a small model to solve GSM8K math problems and show its work. The main workflow starts from **Qwen2.5-0.5B-Instruct** at a pinned Hugging Face revision, fine-tunes it on worked solutions, and optionally trains it again on its own verified solutions.
 
-## Linked task
+## Train on a GPU
 
-Functional reasoning LLM path — Milestones A–G.
-
-## Quick gates (CI / laptop smoke)
-
-Uses `sshleifer/tiny-gpt2` by default so scripts finish without multi-GB downloads:
+Use Python 3.11 or 3.12 and one NVIDIA GPU. Install a CUDA build of PyTorch for your system using the [PyTorch installer](https://pytorch.org/get-started/locally/), then run these commands from the repository root.
 
 ```bash
-python3 -m pip install -r requirements.txt
-./scripts/functional_path.sh
+python -m pip install -r requirements.txt
+python -c "import torch; assert torch.cuda.is_available(); print(torch.cuda.get_device_name())"
+python -m src.prepare_reasoning_data
+python -m src.reasoning_train --out runs/reasoning
 ```
 
-Individual milestones:
+The workflow uses full-weight fine-tuning, a microbatch of one, gradient accumulation, and activation checkpointing. It uses BF16 on supported GPUs and mixed FP16 otherwise. Plan for at least 20 GB of free disk space for the default model, temporary checkpoint writes, and exports. GPU memory use depends on the model and sequence lengths. If evaluation or rollout sampling runs out of GPU memory, resume with a smaller `--eval-batch-size`, down to 1. Use `--skip-rollout` to run supervised fine-tuning alone.
+
+To continue an interrupted run, repeat its command with `--resume` and the same training options. After choosing your run using validation results, add `--test` to evaluate the selected trained model once on the full official test split.
 
 ```bash
-./scripts/verify_milestone_a.sh   # HF base load + baseline eval
-./scripts/verify_milestone_b.sh   # real mix + stream ≥1B tokens
-./scripts/verify_milestone_c.sh   # CPT smoke
-./scripts/verify_milestone_d.sh   # GSM8K SFT beats CPT
-./scripts/verify_milestone_e.sh   # official GSM8K eval harness
-./scripts/verify_milestone_f.sh   # scaled RL-lite
-./scripts/verify_milestone_g.sh   # chat CLI
+python -m src.reasoning_train --out runs/reasoning --resume --test
 ```
 
-Legacy Phase 0–5 gates remain:
+`runs/reasoning/summary.json` records the selected trained checkpoint and validation accuracy for the original base, supervised fine-tuning, and verified self-training when available. The rollout stage trains only if it collects verified generated solutions, and its checkpoint is selected only if it answers more validation questions correctly than the supervised checkpoint. Compare the trained model with the base to measure whether fine-tuning helped.
+
+To try the trained model in the terminal, pass the `selected` path from that summary. The example below uses the supervised checkpoint.
 
 ```bash
-./scripts/smoke.sh && ./scripts/phase1.sh && ./scripts/phase2.sh
-./scripts/phase3.sh && ./scripts/phase4.sh && ./scripts/phase5.sh
+python -m src.chat --ckpt runs/reasoning/sft/export --prompt "A box holds 12 packs of 6 pencils. If 17 pencils are used, how many remain?"
 ```
 
-## Overnight / real GPU (SmolLM-135M)
+## Data and evaluation
+
+The preparation command pins the official GSM8K dataset, separates the official training examples into supervised training, rollout, and validation sets, and preserves all 1,319 official test examples. Each split is recorded in a manifest with its content hash. The GPU workflow requires that prepared dataset.
+
+Validation reports retain generated completions, answer accuracy, format compliance, generation length, and truncation. Supervised fine-tuning predicts the worked solution and final answer with the prompt masked out of the loss. The optional rollout stage samples multiple responses per question and keeps distinct completions with the required structure and the correct final number. The verifier checks the answer and response structure.
+
+Use `python -m src.reasoning_train --help` for settings such as the base model, number of epochs, rollout budget, and generation length.
+
+## CPU smoke test
 
 ```bash
-export PYTHONPATH=.
-export HF_MODEL=HuggingFaceTB/SmolLM-135M
-
-# B: sample fixtures always; FULL=1 attempts small FineWeb-Edu/OpenWebMath slices
-FULL=1 ./scripts/download_real_data.sh
-
-# C: continued-pretrain (1B+ tokens; raise token_budget toward 5B when stable)
-python3 -m src.train --config configs/cpt_overnight.yaml
-# resume:
-python3 -m src.train --config configs/cpt_overnight.yaml \
-  --resume runs/functional/cpt/ckpt_latest.pt
-
-# D: GSM8K SFT from CPT weights
-python3 -m src.train --config configs/sft_gsm8k_overnight.yaml
-
-# E: eval report (promotion gate)
-./scripts/eval.sh runs/functional/sft/ckpt_latest.pt runs/functional/eval
-# or: python3 -m src.eval --ckpt ... --config configs/eval_functional.yaml
-
-# F: scaled rejection-sampling RL-lite
-SFT_CKPT=runs/functional/sft/ckpt_latest.pt \
-  HF_MODEL=$HF_MODEL RS_K=8 RS_MAX_PROMPTS=500 RL_STEPS=500 \
-  ./scripts/verify_milestone_f.sh
-
-# G: chat
-python3 -m src.chat --ckpt runs/functional/best/ckpt_latest.pt
+python -m src.reasoning_train --smoke --out runs/reasoning-smoke --test
+python -m unittest discover -s tests
 ```
 
-Best-checkpoint convention: `runs/functional/best/ckpt_latest.pt` (updated by Milestone F gate).
+The smoke command creates a tiny random model and local fixture data. It exercises training, export, evaluation, and the rollout gate without downloading a model or dataset. Its scores measure the fixture and are not evidence of model quality.
 
-## Layout (functional)
+## Earlier experiments
 
-```text
-src/hf_adapter.py          SmolLM/Qwen HF wrappers
-src/download_real_data.py  data/real sample + GSM8K fixtures
-src/chat.py                local CoT chat CLI
-configs/base_smollm.yaml
-configs/cpt_overnight.yaml
-configs/sft_gsm8k_overnight.yaml
-configs/eval_functional.yaml
-data/real/                 gitignored real mix (sample fixtures for gates)
-```
+The repo also contains a custom decoder-only Transformer and the original Phase 0–5 and Milestone A–G scripts. Use `scripts/smoke.sh` for the custom model and `scripts/functional_path.sh` for the earlier Hugging Face smoke pipeline.

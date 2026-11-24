@@ -8,7 +8,7 @@ from pathlib import Path
 import torch
 from torch.utils.data import DataLoader, Dataset
 
-from src.template import format_prompt, format_response
+from src.template import format_reasoning_prompt, format_response
 from src.tokenizer import TokenizerProto
 
 
@@ -42,8 +42,9 @@ class SFTPromptMaskedDataset(Dataset):
         self.tokenizer = tokenizer
         self.seq_len = seq_len
         self.examples: list[dict[str, torch.Tensor]] = []
+        self.skipped_long = 0
         for row in rows:
-            prompt = format_prompt(row["question"])
+            prompt = format_reasoning_prompt(row["question"], tokenizer)
             response = format_response(row["scratchpad"], row["answer"])
             prompt_ids = tokenizer.encode(prompt, add_bos=True, add_eos=False)
             resp_ids = tokenizer.encode(response, add_bos=False, add_eos=True)
@@ -56,8 +57,9 @@ class SFTPromptMaskedDataset(Dataset):
             if len(input_ids) < 2:
                 continue
             if len(input_ids) > seq_len + 1:
-                input_ids = input_ids[: seq_len + 1]
-                labels = labels[: seq_len + 1]
+                # A clipped completion can silently drop the final answer or EOS.
+                self.skipped_long += 1
+                continue
             self.examples.append(
                 {
                     "input_ids": torch.tensor(input_ids, dtype=torch.long),
@@ -65,7 +67,10 @@ class SFTPromptMaskedDataset(Dataset):
                 }
             )
         if not self.examples:
-            raise ValueError("SFT dataset produced zero examples")
+            raise ValueError(
+                f"no complete SFT examples fit seq_len={seq_len} "
+                f"({self.skipped_long} over length)"
+            )
 
     def __len__(self) -> int:
         return len(self.examples)
@@ -102,6 +107,8 @@ def make_sft_dataloader(
 ) -> DataLoader:
     rows = load_sft_rows(path)
     ds = SFTPromptMaskedDataset(rows, tokenizer, seq_len=seq_len)
+    if ds.skipped_long:
+        print(f"{path}: skipped {ds.skipped_long}/{len(rows)} examples over seq_len={seq_len}")
     g = torch.Generator()
     g.manual_seed(seed)
 
