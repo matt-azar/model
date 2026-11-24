@@ -1,40 +1,56 @@
-# reasoning-llm (Phase 0)
+# reasoning-llm
 
-Personal small reasoning LLM foundation. Phase 0 proves a debugger-friendly train loop: toy overfit, checkpoint resume, generate, and a tiny personal smoke eval.
+Personal small reasoning LLM foundation. Phase 0: train/smoke loop. Phase 1: frozen tokenizer + streaming data pipeline.
 
 ## Layout
 
 ```text
-configs/          smoke / pretrain / sft YAML
-src/              model, data, train, generate, eval_smoke
-scripts/smoke.sh  end-to-end Phase 0 gate
-data/toy/         tiny overfit corpus
-data/personal_smoke.jsonl
+configs/          smoke / phase1 / pretrain / sft YAML
+src/              model, data, tokenizer, train, generate, eval, builders
+scripts/smoke.sh  Phase 0 gate
+scripts/phase1.sh Phase 1 gate (build + verify >1B token stream)
+tokenizer/        frozen BPE (tokenizer.json)
+data/toy/         Phase 0 overfit corpus
+data/standin/     clearly marked toy stand-in mix (train/val jsonl+parquet)
+data/manifest.json
 runs/             gitignored outputs
 ```
 
 ## Setup
 
-Python 3.11+, CPU is enough for smoke.
+Python 3.11+, CPU is enough for Phase 0/1 gates.
 
 ```bash
 python3 -m pip install -r requirements.txt
-# or: python3 -m pip install -e .
 ```
 
-## Run smoke
+## Phase 0 smoke
 
 ```bash
 chmod +x scripts/smoke.sh
 ./scripts/smoke.sh
 ```
 
-What it checks:
+## Phase 1 (tokenizer + data pipeline)
 
-1. Trains `configs/smoke.yaml` until loss is under the overfit threshold
-2. Resumes from a mid checkpoint and continues a few steps
-3. Generates from `ckpt_latest.pt`
-4. Runs `data/personal_smoke.jsonl` and requires at least one expected substring match
+```bash
+chmod +x scripts/phase1.sh scripts/build_phase1_data.sh scripts/verify_phase1.sh
+./scripts/phase1.sh
+```
+
+What Phase 1 checks:
+
+1. Builds a clearly marked CC0 stand-in corpus with train/val split (jsonl + parquet)
+2. Trains and freezes a BPE tokenizer under `tokenizer/`
+3. Writes sha256 hashes into `data/manifest.json` and verifies them
+4. Streams **>1B packed tokens** from the license-documented stand-in mix without babysitting
+
+To verify an already-built tree without rebuilding:
+
+```bash
+REBUILD=0 ./scripts/phase1.sh
+# or: ./scripts/verify_phase1.sh
+```
 
 ## Manual commands
 
@@ -43,10 +59,5 @@ export PYTHONPATH=.
 python3 -m src.train --config configs/smoke.yaml
 python3 -m src.generate --ckpt runs/smoke/ckpt_latest.pt --prompt "The capital of France is"
 python3 -m src.eval_smoke --ckpt runs/smoke/ckpt_latest.pt --eval data/personal_smoke.jsonl
+python3 -m src.stream_verify --tokenizer tokenizer --data data/standin/train.jsonl --stand-in --target-tokens 1000000000
 ```
-
-## Phase 0 exit criteria
-
-- Toy overfit works (final loss below `train.overfit_loss_threshold`)
-- Checkpoint resume works
-- `./scripts/smoke.sh` exits 0 and prints `SMOKE GREEN`

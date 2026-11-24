@@ -9,7 +9,7 @@ import torch
 import yaml
 
 from src.model import GPT, ModelConfig
-from src.tokenizer import CharTokenizer
+from src.tokenizer import load_tokenizer_from_checkpoint_state
 from src.train import load_checkpoint, resolve_device
 
 
@@ -22,7 +22,7 @@ def generate_text(
 ) -> str:
     device = resolve_device(device_name)
     ckpt = load_checkpoint(Path(ckpt_path), map_location=device)
-    tokenizer = CharTokenizer.from_state(ckpt["tokenizer"])
+    tokenizer = load_tokenizer_from_checkpoint_state(ckpt["tokenizer"])
     mcfg = ModelConfig(**ckpt["model_config"])
     model = GPT(mcfg).to(device)
     model.load_state_dict(ckpt["model"])
