@@ -10,7 +10,7 @@ import torch
 
 from src.data import make_dataloader, load_texts
 from src.eval_gsm8k_style import evaluate as eval_gsm8k_style
-from src.generate import generate_text
+from src.generate import Generator, generate_text
 from src.template import format_prompt, has_scratchpad_and_final
 from src.train import resolve_device
 
@@ -34,6 +34,7 @@ def adapter_gsm8k_style(
     max_new_tokens: int,
     temperature: float,
     device: str,
+    batch_size: int = 8,
     **_: Any,
 ) -> dict[str, Any]:
     report = eval_gsm8k_style(
@@ -42,11 +43,14 @@ def adapter_gsm8k_style(
         max_new_tokens=max_new_tokens,
         temperature=temperature,
         device=device,
+        batch_size=batch_size,
     )
     return {
         "summary": {
             "exact_match": report["exact_match"],
             "format_rate": report["format_rate"],
+            "truncation_rate": report["truncation_rate"],
+            "mean_generated_tokens": report["mean_generated_tokens"],
             "n": report["n"],
             "n_correct": report["n_correct"],
         },
@@ -67,13 +71,12 @@ def adapter_personal_smoke(
     matched = 0
     format_ok = 0
     format_n = 0
+    generator = Generator.from_checkpoint(ckpt, device_name=device)
     for row in rows:
-        gen = generate_text(
-            ckpt,
-            prompt=row["prompt"],
+        gen = generator.complete(
+            row["prompt"],
             max_new_tokens=max_new_tokens,
             temperature=temperature,
-            device_name=device,
         )
         expected = row.get("expected")
         ok = None
@@ -218,6 +221,7 @@ def adapter_logic_mc(
     rows = _load_jsonl(Path(path))
     results = []
     correct = 0
+    generator = Generator.from_checkpoint(ckpt, device_name=device)
     for row in rows:
         choices = row["choices"]
         choice_lines = "\n".join(f"{k}. {v}" for k, v in choices.items())
@@ -225,12 +229,10 @@ def adapter_logic_mc(
             f"{format_prompt(row['question'] + chr(10) + choice_lines)}"
             f"Reply with the letter only.\n"
         )
-        gen = generate_text(
-            ckpt,
-            prompt=prompt,
+        gen = generator.complete(
+            prompt,
             max_new_tokens=max_new_tokens,
             temperature=temperature,
-            device_name=device,
         )
         pred = _parse_choice(gen, list(choices.keys()))
         ok = pred == str(row["answer"]).upper()
@@ -320,7 +322,7 @@ def adapter_gsm8k_official(
     max_new_tokens: int,
     temperature: float,
     device: str,
-    **_: Any,
+    **kwargs: Any,
 ) -> dict[str, Any]:
     """Official GSM8K-format JSONL (question / scratchpad / answer)."""
     return adapter_gsm8k_style(
@@ -329,6 +331,7 @@ def adapter_gsm8k_official(
         max_new_tokens=max_new_tokens,
         temperature=temperature,
         device=device,
+        **kwargs,
     )
 
 

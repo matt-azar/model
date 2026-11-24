@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 
 from src.eval_gsm8k_style import evaluate
-from src.generate import generate_text
+from src.generate import Generator
 from src.template import has_scratchpad_and_final
 
 
@@ -35,12 +35,11 @@ def check_format_smoke(
     results = []
     ok = 0
     answer_ok = 0
+    generator = Generator.from_checkpoint(ckpt)
     for case in format_cases:
-        gen = generate_text(
-            ckpt,
-            prompt=case["prompt"],
+        gen = generator.complete(
+            case["prompt"],
             max_new_tokens=max_new_tokens,
-            temperature=0.0,
         )
         fmt = has_scratchpad_and_final(gen)
         expected = str(case.get("expected", ""))

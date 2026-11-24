@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any
 
 import torch
@@ -17,6 +18,16 @@ import torch.nn.functional as F
 
 DEFAULT_HF_MODEL = "HuggingFaceTB/SmolLM-135M"
 FALLBACK_HF_MODEL = "Qwen/Qwen2.5-0.5B"
+
+
+def cuda_supports_bf16(device: torch.device) -> bool:
+    if device.type != "cuda":
+        return False
+    if torch.version.hip:
+        with torch.cuda.device(device):
+            return torch.cuda.is_bf16_supported()
+    # NVIDIA Ampere (compute capability 8.0) added native BF16 support.
+    return torch.cuda.get_device_capability(device)[0] >= 8
 
 
 @dataclass
@@ -38,7 +49,7 @@ class HFTokenizer:
         # HF encode; we control BOS/EOS explicitly for SFT masking consistency.
         ids = self.tok.encode(text, add_special_tokens=False)
         out: list[int] = []
-        if add_bos and self.bos_id >= 0:
+        if add_bos and self.bos_id >= 0 and (not ids or ids[0] != self.bos_id):
             out.append(self.bos_id)
         out.extend(ids)
         if add_eos and self.eos_id >= 0:
@@ -49,6 +60,13 @@ class HFTokenizer:
         return self.tok.decode(ids, skip_special_tokens=skip_special)
 
     def to_state(self) -> dict:
+        with TemporaryDirectory() as folder:
+            paths = self.tok.save_pretrained(folder)
+            files = {
+                Path(path).name: Path(path).read_bytes()
+                for path in paths
+                if Path(path).is_file()
+            }
         return {
             "kind": "hf",
             "hf_name": self.hf_name,
@@ -56,26 +74,27 @@ class HFTokenizer:
             "bos_id": self.bos_id,
             "eos_id": self.eos_id,
             "unk_id": self.unk_id,
+            "files": files,
         }
 
     @classmethod
     def from_pretrained(cls, name_or_path: str) -> "HFTokenizer":
         from transformers import AutoTokenizer
 
-        tok = AutoTokenizer.from_pretrained(name_or_path, trust_remote_code=True)
+        tok = AutoTokenizer.from_pretrained(name_or_path, trust_remote_code=False)
         if tok.pad_token_id is None:
             # Causal LMs often lack pad; fall back to eos.
             tok.pad_token = tok.eos_token
         bos = tok.bos_token_id
-        if bos is None:
-            bos = tok.eos_token_id if tok.eos_token_id is not None else 0
-        eos = tok.eos_token_id if tok.eos_token_id is not None else bos
+        if tok.eos_token_id is None:
+            raise ValueError(f"tokenizer {name_or_path} needs an EOS token")
+        eos = tok.eos_token_id
         unk = tok.unk_token_id if tok.unk_token_id is not None else eos
         pad = tok.pad_token_id if tok.pad_token_id is not None else eos
         return cls(
             tok=tok,
             pad_id=int(pad),
-            bos_id=int(bos),
+            bos_id=int(bos) if bos is not None else -1,
             eos_id=int(eos),
             unk_id=int(unk),
             hf_name=str(name_or_path),
@@ -83,7 +102,20 @@ class HFTokenizer:
 
     @classmethod
     def from_state(cls, state: dict) -> "HFTokenizer":
-        return cls.from_pretrained(state["hf_name"])
+        if "files" in state:
+            with TemporaryDirectory() as folder:
+                for name, content in state["files"].items():
+                    if Path(name).name != name:
+                        raise ValueError(f"invalid tokenizer file name: {name}")
+                    (Path(folder) / name).write_bytes(content)
+                tokenizer = cls.from_pretrained(folder)
+        else:
+            tokenizer = cls.from_pretrained(state["hf_name"])
+        tokenizer.hf_name = state["hf_name"]
+        for name in ("pad_id", "bos_id", "eos_id", "unk_id"):
+            if name in state:
+                setattr(tokenizer, name, int(state[name]))
+        return tokenizer
 
 
 class HFCausalLM(nn.Module):
@@ -119,7 +151,7 @@ class HFCausalLM(nn.Module):
     ) -> "HFCausalLM":
         from transformers import AutoModelForCausalLM
 
-        kwargs: dict[str, Any] = {"trust_remote_code": True}
+        kwargs: dict[str, Any] = {"trust_remote_code": False}
         if torch_dtype is not None:
             kwargs["torch_dtype"] = torch_dtype
         model = AutoModelForCausalLM.from_pretrained(name_or_path, **kwargs)
@@ -130,7 +162,7 @@ class HFCausalLM(nn.Module):
     def forward(
         self, idx: torch.Tensor, targets: torch.Tensor | None = None
     ) -> tuple[torch.Tensor, torch.Tensor | None]:
-        out = self.model(input_ids=idx)
+        out = self.model(input_ids=idx, use_cache=False)
         logits = out.logits
         loss = None
         if targets is not None:
@@ -147,19 +179,29 @@ class HFCausalLM(nn.Module):
         idx: torch.Tensor,
         max_new_tokens: int,
         temperature: float = 0.0,
-        eos_id: int | None = None,
+        eos_id: int | list[int] | None = None,
+        *,
+        attention_mask: torch.Tensor | None = None,
+        pad_id: int | None = None,
     ) -> torch.Tensor:
         self.model.eval()
         do_sample = temperature is not None and temperature > 0
+        if pad_id is None:
+            pad_id = eos_id[0] if isinstance(eos_id, list) else eos_id
         gen_kwargs: dict[str, Any] = {
             "max_new_tokens": max_new_tokens,
             "do_sample": do_sample,
-            "pad_token_id": eos_id if eos_id is not None else self.model.config.eos_token_id,
         }
+        if pad_id is not None:
+            gen_kwargs["pad_token_id"] = pad_id
+        if attention_mask is not None:
+            gen_kwargs["attention_mask"] = attention_mask
         if eos_id is not None:
             gen_kwargs["eos_token_id"] = eos_id
         if do_sample:
             gen_kwargs["temperature"] = float(temperature)
+        else:
+            gen_kwargs.update(temperature=1.0, top_p=1.0, top_k=50)
         return self.model.generate(idx, **gen_kwargs)
 
     def save_pretrained(self, directory: str | Path) -> None:
@@ -170,6 +212,36 @@ class HFCausalLM(nn.Module):
         (directory / "hf_adapter.json").write_text(
             json.dumps(meta, indent=2) + "\n", encoding="utf-8"
         )
+
+
+def load_hf_checkpoint_model(
+    checkpoint: dict,
+    checkpoint_path: str | Path,
+    *,
+    gradient_checkpointing: bool = False,
+) -> HFCausalLM:
+    """Restore a portable repository checkpoint, or fall back to legacy HF assets."""
+    from transformers import AutoConfig, AutoModelForCausalLM, GenerationConfig
+
+    name = checkpoint.get("hf_name") or checkpoint["model_config"]["hf_name"]
+    if "hf_config" in checkpoint:
+        config = dict(checkpoint["hf_config"])
+        model_type = config.pop("model_type")
+        native = AutoModelForCausalLM.from_config(AutoConfig.for_model(model_type, **config))
+        if checkpoint.get("hf_generation_config") is not None:
+            native.generation_config = GenerationConfig.from_dict(checkpoint["hf_generation_config"])
+        model = HFCausalLM(native, name)
+    else:
+        path = Path(checkpoint_path)
+        sibling = path.with_name(f"{path.stem}_hf")
+        stored = checkpoint.get("hf_dir")
+        sources = (sibling, Path(stored) if stored else None)
+        source = next((str(p) for p in sources if p is not None and p.is_dir()), name)
+        model = HFCausalLM.from_pretrained(source)
+    model.load_state_dict(checkpoint["model"])
+    if gradient_checkpointing:
+        model.model.gradient_checkpointing_enable()
+    return model
 
 
 def resolve_hf_name(cfg: dict) -> str | None:

@@ -13,6 +13,7 @@ venv/
 runs/
 data/large/
 data/personal/
+data/reasoning/
 data/real/**
 !data/real/README.md
 data/rllite/*.jsonl

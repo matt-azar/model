@@ -1,20 +1,26 @@
-"""Milestone G: local chat CLI over the best functional checkpoint."""
+"""Local reasoning CLI over a selected checkpoint."""
 
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
-from src.generate import generate_text
-from src.template import format_prompt
+from src.generate import Generator
+from src.template import format_reasoning_prompt
 
 
 DEFAULT_BEST = "runs/functional/best/ckpt_latest.pt"
+DEFAULT_RUN_SUMMARY = Path("runs/reasoning/summary.json")
 
 
 def resolve_best_ckpt(explicit: str | None) -> str:
     if explicit:
         return explicit
+    if DEFAULT_RUN_SUMMARY.is_file():
+        selected = json.loads(DEFAULT_RUN_SUMMARY.read_text(encoding="utf-8")).get("selected")
+        if isinstance(selected, str) and Path(selected).exists():
+            return selected
     candidates = [
         DEFAULT_BEST,
         "runs/functional/rllite/ckpt_latest.pt",
@@ -27,7 +33,7 @@ def resolve_best_ckpt(explicit: str | None) -> str:
         if Path(path).exists():
             return path
     raise SystemExit(
-        "no checkpoint found; pass --ckpt or train via ./scripts/functional_path.sh"
+        "no checkpoint found; pass --ckpt or train via python -m src.reasoning_train"
     )
 
 
@@ -45,15 +51,14 @@ def main() -> None:
     args = parser.parse_args()
     ckpt = resolve_best_ckpt(args.ckpt)
     print(f"loading {ckpt}")
+    generator = Generator.from_checkpoint(ckpt, args.device)
 
     def ask(question: str) -> str:
-        prompt = format_prompt(question)
-        return generate_text(
-            ckpt,
-            prompt=prompt,
+        prompt = format_reasoning_prompt(question, generator.tokenizer)
+        return generator.complete(
+            prompt,
             max_new_tokens=args.max_new_tokens,
             temperature=args.temperature,
-            device_name=args.device,
         )
 
     if args.prompt:
