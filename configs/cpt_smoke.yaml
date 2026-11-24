@@ -1,0 +1,40 @@
+# Milestone C smoke: continued-pretrain at tiny token budget (CI / gates).
+seed: 42
+device: auto
+dtype: float32
+manifest: data/manifest.json
+
+tokenizer:
+  hf_name: sshleifer/tiny-gpt2
+
+model:
+  hf_name: sshleifer/tiny-gpt2
+
+data:
+  stand_in: false
+  streaming: true
+  train_path: data/real/sample/train.jsonl
+  val_path: data/real/sample/val.jsonl
+  seq_len: 64
+  batch_size: 2
+
+train:
+  mode: pretrain
+  steps: null
+  token_budget: 2048
+  lr: 5.0e-5
+  weight_decay: 0.01
+  grad_clip: 1.0
+  grad_accum: 2
+  activation_checkpointing: false
+  log_every: 5
+  save_every: 50
+  eval_every: 25
+  eval_batches: 2
+  overfit_loss_threshold: null
+  run_name: cpt_smoke
+
+checkpoint:
+  dir: runs/functional/cpt_smoke
+  init_from: sshleifer/tiny-gpt2
+  resume: null

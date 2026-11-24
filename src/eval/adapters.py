@@ -11,10 +11,8 @@ import torch
 from src.data import make_dataloader, load_texts
 from src.eval_gsm8k_style import evaluate as eval_gsm8k_style
 from src.generate import generate_text
-from src.model import GPT, ModelConfig
 from src.template import format_prompt, has_scratchpad_and_final
-from src.tokenizer import FrozenTokenizer, load_tokenizer_from_checkpoint_state
-from src.train import load_checkpoint, resolve_device
+from src.train import resolve_device
 
 
 AdapterFn = Callable[..., dict[str, Any]]
@@ -286,23 +284,10 @@ def adapter_val_lm_loss(
     seed: int = 42,
     **_: Any,
 ) -> dict[str, Any]:
+    from src.generate import _load_model_and_tokenizer
+
     dev = resolve_device(device)
-    blob = load_checkpoint(Path(ckpt), map_location=dev)
-    tokenizer = load_tokenizer_from_checkpoint_state(blob["tokenizer"])
-    # Prefer frozen tokenizer if checkpoint was trained with one and file exists.
-    if isinstance(tokenizer, FrozenTokenizer) is False:
-        tok_dir = Path("tokenizer")
-        if (tok_dir / "tokenizer.json").exists() and "vocab_size" in blob.get(
-            "model_config", {}
-        ):
-            try:
-                frozen = FrozenTokenizer.load(tok_dir)
-                if frozen.vocab_size == blob["model_config"]["vocab_size"]:
-                    tokenizer = frozen
-            except Exception:  # noqa: BLE001
-                pass
-    model = GPT(ModelConfig(**blob["model_config"])).to(dev)
-    model.load_state_dict(blob["model"])
+    model, tokenizer = _load_model_and_tokenizer(ckpt, dev)
     model.eval()
     texts = load_texts(path)
     loader = make_dataloader(
@@ -329,8 +314,27 @@ def adapter_val_lm_loss(
     }
 
 
+def adapter_gsm8k_official(
+    ckpt: str | Path,
+    path: str | Path,
+    max_new_tokens: int,
+    temperature: float,
+    device: str,
+    **_: Any,
+) -> dict[str, Any]:
+    """Official GSM8K-format JSONL (question / scratchpad / answer)."""
+    return adapter_gsm8k_style(
+        ckpt=ckpt,
+        path=path,
+        max_new_tokens=max_new_tokens,
+        temperature=temperature,
+        device=device,
+    )
+
+
 ADAPTERS: dict[str, AdapterFn] = {
     "gsm8k_style": adapter_gsm8k_style,
+    "gsm8k_official": adapter_gsm8k_official,
     "personal_smoke": adapter_personal_smoke,
     "code_smoke": adapter_code_smoke,
     "logic_mc": adapter_logic_mc,
