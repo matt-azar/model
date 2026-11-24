@@ -13,6 +13,8 @@ venv/
 runs/
 data/large/
 data/personal/
+data/rllite/*.jsonl
+!data/rllite/README.md
 *.pt
 !data/toy/**
 .DS_Store
