@@ -6,19 +6,18 @@ Personal small reasoning LLM foundation.
 - Phase 1: frozen tokenizer + streaming data pipeline
 - Phase 2: pretrain / continued-pretrain MVP
 - Phase 3: SFT for reasoning format (CoT + Final answer)
+- Phase 4: unified eval harness v1
 
 ## Layout
 
 ```text
-configs/          smoke / phase1 / pretrain / phase3_base / sft
-src/              model, data, template, sft_data, train, eval
-scripts/smoke.sh  Phase 0
-scripts/phase1.sh Phase 1
-scripts/phase2.sh Phase 2
-scripts/phase3.sh Phase 3 (base -> SFT -> format + GSM8K-style gate)
-data/sft/         curated CoT SFT + local gsm8k-style eval
-tokenizer/        frozen BPE
-runs/             gitignored outputs
+configs/eval.yaml     harness benchmark list
+src/eval/             unified CLI + adapters + report helpers
+data/eval/            code + logic fixtures
+data/personal_smoke.jsonl
+scripts/phase4.sh     determinism gate (run twice, compare)
+scripts/eval.sh       convenience wrapper
+runs/eval/            report artifacts (gitignored)
 ```
 
 ## Setup
@@ -31,35 +30,30 @@ python3 -m pip install -r requirements.txt
 
 ```bash
 ./scripts/smoke.sh
-./scripts/phase1.sh          # or REBUILD=0 ./scripts/phase1.sh
+./scripts/phase1.sh
 ./scripts/phase2.sh
 ./scripts/phase3.sh
+./scripts/phase4.sh
 ```
 
-### Phase 3 exit checks
+### Phase 4 exit checks
 
-1. Train a Phase-2-style base, then SFT with **prompt masking** and CoT template
-2. SFT checkpoint emits `Show your work:` + `Final answer:` on personal smoke
-3. Local GSM8K-style exact-match score **beats** the Phase 2-style base
+1. Unified CLI: `python -m src.eval --ckpt <pt> --config configs/eval.yaml --out runs/eval`
+2. Adapters: gsm8k_style, personal_smoke, code_smoke, logic_mc, val_lm_loss
+3. Same commit + same checkpoint → identical **canonical** report (allowlisted nondeterminism: wall time, timestamps, device label)
 
-### Overnight pretrain / continued-pretrain
+### Eval a checkpoint
+
+```bash
+export PYTHONPATH=.
+./scripts/eval.sh runs/phase3/sft/ckpt_latest.pt runs/eval
+# or:
+python3 -m src.eval --ckpt runs/phase3/sft/ckpt_latest.pt --config configs/eval.yaml --out runs/eval
+```
+
+### Overnight pretrain
 
 ```bash
 export PYTHONPATH=.
 python3 -m src.train --config configs/pretrain_overnight.yaml
-python3 -m src.train --config configs/pretrain_overnight.yaml \
-  --resume runs/pretrain_overnight/ckpt_latest.pt
-```
-
-## Manual commands
-
-```bash
-export PYTHONPATH=.
-python3 -m src.build_sft_corpus --out-dir data/sft
-python3 -m src.train --config configs/phase3_base.yaml
-python3 -m src.train --config configs/sft.yaml
-python3 -m src.eval_gsm8k_style --ckpt runs/phase3/sft/ckpt_latest.pt
-python3 -m src.verify_sft \
-  --base-ckpt runs/phase3/base/ckpt_latest.pt \
-  --sft-ckpt runs/phase3/sft/ckpt_latest.pt
 ```

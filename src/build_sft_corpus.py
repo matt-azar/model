@@ -167,43 +167,34 @@ def main() -> None:
     write_split(val_rows, out / "val.jsonl")
     write_split(eval_rows, out / "gsm8k_style_eval.jsonl")
 
-    # Prompt-only smoke for format compliance.
+    # Keep personal smoke under repo control; do not clobber an expanded file.
     smoke_path = Path("data/personal_smoke.jsonl")
-    smoke = [
-        {
-            "id": "format-apples",
-            "prompt": "### Instruction\nSam has 3 apples and buys 5 more. How many apples does Sam have?\n\n### Response\n",
-            "expected": "Final answer: 8",
-            "expect_scratchpad": True,
-        },
-        {
-            "id": "format-two-plus-two",
-            "prompt": "### Instruction\nWhat is two plus two?\n\n### Response\n",
-            "expected": "Final answer: 4",
-            "expect_scratchpad": True,
-        },
-        {
-            "id": "format-minus",
-            "prompt": "### Instruction\nWhat is 15 minus 7?\n\n### Response\n",
-            "expected": "Final answer: 8",
-            "expect_scratchpad": True,
-        },
-        {
-            "id": "capital-france",
-            "prompt": "The capital of France is",
-            "expected": "Paris",
-            "expect_scratchpad": False,
-        },
-    ]
-    with smoke_path.open("w", encoding="utf-8") as f:
-        for row in smoke:
-            f.write(json.dumps(row) + "\n")
+    if not smoke_path.exists():
+        smoke = [
+            {
+                "id": "format-apples",
+                "prompt": "### Instruction\nSam has 3 apples and buys 5 more. How many apples does Sam have?\n\n### Response\n",
+                "expected": "Final answer: 8",
+                "expect_scratchpad": True,
+            },
+            {
+                "id": "capital-france",
+                "prompt": "The capital of France is",
+                "expected": "Paris",
+                "expect_scratchpad": False,
+            },
+        ]
+        with smoke_path.open("w", encoding="utf-8") as f:
+            for row in smoke:
+                f.write(json.dumps(row) + "\n")
+        print(f"created {smoke_path}")
+    else:
+        print(f"left existing {smoke_path} unchanged")
 
     print(
         f"wrote SFT corpus to {out}/ "
         f"(train={len(train_rows)} val={len(val_rows)} eval={len(eval_rows)})"
     )
-    print(f"updated {smoke_path}")
 
 
 if __name__ == "__main__":
