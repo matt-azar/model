@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 
 from src.generate import Generator
-from src.template import format_reasoning_prompt
+from src.template import format_chat_prompt, format_reasoning_prompt
 
 
 DEFAULT_BEST = "runs/functional/best/ckpt_latest.pt"
@@ -38,11 +38,16 @@ def resolve_best_ckpt(explicit: str | None) -> str:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Local CoT chat CLI")
+    parser = argparse.ArgumentParser(description="Local chat CLI")
     parser.add_argument("--ckpt", default=None)
     parser.add_argument("--temperature", type=float, default=0.2)
     parser.add_argument("--max-new-tokens", type=int, default=256)
     parser.add_argument("--device", default="auto")
+    parser.add_argument(
+        "--worked-solution",
+        action="store_true",
+        help="request the format used by the GSM8K training and evaluation pipeline",
+    )
     parser.add_argument(
         "--prompt",
         default=None,
@@ -52,9 +57,10 @@ def main() -> None:
     ckpt = resolve_best_ckpt(args.ckpt)
     print(f"loading {ckpt}")
     generator = Generator.from_checkpoint(ckpt, args.device)
+    format_question = format_reasoning_prompt if args.worked_solution else format_chat_prompt
 
     def ask(question: str) -> str:
-        prompt = format_reasoning_prompt(question, generator.tokenizer)
+        prompt = format_question(question, generator.tokenizer)
         return generator.complete(
             prompt,
             max_new_tokens=args.max_new_tokens,

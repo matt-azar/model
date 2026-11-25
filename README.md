@@ -29,6 +29,8 @@ To try the trained model in the terminal, pass the `selected` path from that sum
 python -m src.chat --ckpt runs/reasoning/sft/export --prompt "A box holds 12 packs of 6 pencils. If 17 pencils are used, how many remain?"
 ```
 
+Chat sends your question as written. Add `--worked-solution` to request the format used during GSM8K training. The math-trained checkpoint may still generate a worked solution by default.
+
 ## Data and evaluation
 
 The preparation command pins the official GSM8K dataset, separates the official training examples into supervised training, rollout, and validation sets, and preserves all 1,319 official test examples. Each split is recorded in a manifest with its content hash. The GPU workflow requires that prepared dataset.
