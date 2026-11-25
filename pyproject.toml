@@ -24,6 +24,9 @@ dev = []
 where = ["."]
 include = ["src*"]
 
+[tool.setuptools.package-data]
+src = ["gui_assets/*.html", "gui_assets/*.css", "gui_assets/*.js"]
+
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"

@@ -25,11 +25,22 @@ def format_prompt(question: str) -> str:
 
 def format_chat_prompt(question: str, tokenizer: object) -> str:
     """Serialize a user question with the tokenizer's chat template when available."""
+    return format_chat_messages([{"role": "user", "content": question.strip()}], tokenizer)
+
+
+def format_chat_messages(messages: list[dict[str, str]], tokenizer: object) -> str:
+    """Serialize alternating user and assistant messages ending with a question."""
     hf = getattr(tokenizer, "tok", None)
     if not getattr(hf, "chat_template", None):
-        return format_prompt(question)
+        turns = []
+        for index in range(0, len(messages), 2):
+            turn = format_prompt(messages[index]["content"])
+            if index + 1 < len(messages):
+                turn += messages[index + 1]["content"]
+            turns.append(turn)
+        return "\n\n".join(turns)
     return hf.apply_chat_template(
-        [{"role": "user", "content": question.strip()}],
+        messages,
         tokenize=False,
         add_generation_prompt=True,
     )

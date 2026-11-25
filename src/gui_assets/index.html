@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Model</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/chat.js"></script>
+</head>
+<body>
+  <header class="titlebar">
+    <div class="brand"><span class="editor-mark" aria-hidden="true"></span><span>Model</span></div>
+    <nav aria-label="Chat actions">
+      <button id="new-chat" type="button" disabled>New chat</button>
+      <button id="theme-toggle" type="button">Light theme</button>
+    </nav>
+  </header>
+  <div class="tabbar">
+    <span class="active-tab">Chat</span>
+  </div>
+  <main class="workspace" aria-label="Chat">
+    <section class="transcript" id="transcript" aria-label="Conversation" tabindex="0">
+      <div class="empty" id="empty">
+        <span class="editor-mark large-mark" aria-hidden="true"></span>
+        <h1>Start a chat</h1>
+        <div class="examples" aria-label="Example prompts">
+          <button type="button" data-example>
+            <span>Math</span><span>Why are there infinitely many primes?</span>
+          </button>
+          <button type="button" data-example>
+            <span>Code</span><span>Write a Python function that counts primes below n.</span>
+          </button>
+          <button type="button" data-example>
+            <span>Logic</span><span>If every A is B and some B are C, must some A be C?</span>
+          </button>
+        </div>
+      </div>
+      <div id="messages" class="messages" role="log" aria-label="Messages"></div>
+    </section>
+    <form id="compose" class="compose">
+      <p id="error" class="error" role="alert" hidden></p>
+      <div class="composer">
+        <label for="prompt" class="visually-hidden">Message</label>
+        <textarea id="prompt" rows="3" maxlength="8000" placeholder="Ask a question or paste code…" disabled required></textarea>
+        <div class="composer-actions">
+          <span class="shortcuts"><kbd>Enter</kbd> sends <span class="shortcut-separator">·</span> <kbd>Shift</kbd> + <kbd>Enter</kbd> adds a line</span>
+          <button id="send" class="send" type="submit" disabled>Send <span aria-hidden="true">↵</span></button>
+        </div>
+      </div>
+    </form>
+  </main>
+  <footer class="statusbar">
+    <span id="checkpoint" class="checkpoint"></span>
+    <div class="status-meta">
+      <span id="device"></span>
+      <span id="status" role="status" class="runtime-status">Connecting…</span>
+    </div>
+  </footer>
+</body>
+</html>

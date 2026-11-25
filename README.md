@@ -62,6 +62,18 @@ python -m src.chat --ckpt runs/reasoning/sft/export --device cpu
 
 Chat sends the question as written. Ask for steps when you want them. `--worked-solution` requests the older GSM8K answer format. The CPU chat CLI uses FP32, so 1.5B needs about 6.2 GB for the weights plus working memory.
 
+### Local browser chat
+
+After you extract the export on your laptop, run the GUI from the repo root using the same Python environment as the terminal CLI.
+
+```powershell
+.\.venv\Scripts\python.exe -m src.gui --ckpt runs/reasoning/sft/export --device cpu
+```
+
+On Linux or macOS, use `python -m src.gui` with the same options. The launcher opens a browser at `http://127.0.0.1:7860`. Keep its terminal open while you chat. Use `--port 7861` if the default port is occupied. Press Ctrl+C in the launcher to shut it down.
+
+Enter sends a message and Shift+Enter adds a line. Follow-ups include recent turns from the open tab. The tab keeps its conversation until you choose **New chat** or reload it.
+
 ## CPU smoke and earlier experiments
 
 ```bash

@@ -22,6 +22,7 @@ def resolve_best_ckpt(explicit: str | None) -> str:
         if isinstance(selected, str) and Path(selected).exists():
             return selected
     candidates = [
+        str(DEFAULT_RUN_SUMMARY.parent / "sft" / "export"),
         DEFAULT_BEST,
         "runs/functional/rllite/ckpt_latest.pt",
         "runs/functional/sft/ckpt_latest.pt",
