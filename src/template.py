@@ -23,19 +23,24 @@ def format_prompt(question: str) -> str:
     return f"{INSTRUCTION_HEADER}\n{question.strip()}\n\n{RESPONSE_HEADER}\n"
 
 
-def format_reasoning_prompt(question: str, tokenizer: object) -> str:
-    """Add instructions for HF models and use native chat formatting when available."""
+def format_chat_prompt(question: str, tokenizer: object) -> str:
+    """Serialize a user question with the tokenizer's chat template when available."""
     hf = getattr(tokenizer, "tok", None)
-    if hf is None:
-        return format_prompt(question)
-    instruction = f"{question.strip()}\n\n{REASONING_INSTRUCTION}"
     if not getattr(hf, "chat_template", None):
-        return format_prompt(instruction)
+        return format_prompt(question)
     return hf.apply_chat_template(
-        [{"role": "user", "content": instruction}],
+        [{"role": "user", "content": question.strip()}],
         tokenize=False,
         add_generation_prompt=True,
     )
+
+
+def format_reasoning_prompt(question: str, tokenizer: object) -> str:
+    """Add the worked-solution instructions used in math training and evaluation."""
+    if getattr(tokenizer, "tok", None) is None:
+        return format_prompt(question)
+    instruction = f"{question.strip()}\n\n{REASONING_INSTRUCTION}"
+    return format_chat_prompt(instruction, tokenizer)
 
 
 def format_response(scratchpad: str, answer: str) -> str:

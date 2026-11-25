@@ -1,4 +1,4 @@
-"""Single-GPU reasoning SFT, optional verified self-training, and evaluation."""
+"""Single-GPU supervised fine-tuning and evaluation for a general reasoning model."""
 
 from __future__ import annotations
 
@@ -13,14 +13,14 @@ import torch
 import yaml
 from huggingface_hub import HfApi, snapshot_download
 
+from src.eval_general import evaluate as evaluate_general
 from src.eval_gsm8k_style import evaluate
-from src.prepare_reasoning_data import prepare, validate
+from src.manifest import load_manifest
+from src.prepare_general_data import prepare as prepare_general, validate as validate_general
+from src.prepare_reasoning_data import validate
+from src.reasoning_defaults import DEFAULT_MODEL, DEFAULT_REVISION, GENERAL_DATA_DIR
 from src.reject_sample import collect_winners
 from src.train import train
-
-DEFAULT_MODEL = "Qwen/Qwen2.5-0.5B"
-DEFAULT_REVISION = "060db6499f32faf8b98477b0a26969ef7d8b9987"
-
 
 def write_json(path: Path, data: dict) -> None:
     staged = path.with_suffix(".tmp")
@@ -150,6 +150,10 @@ def train_stage(
             "keep_last": 1,
         },
     }
+    if settings.get("profile") == "general":
+        config["data"]["require_complete_rows"] = True
+        config["train"]["optimizer_foreach"] = False
+
     config_path = directory / "stage.yaml"
     config_path.write_text(yaml.safe_dump(config), encoding="utf-8")
     latest = directory / "ckpt_latest.pt"
@@ -164,13 +168,16 @@ def evaluate_stage(
 ) -> dict:
     if report.is_file():
         return load_json(report)
-    result = evaluate(
-        model,
-        dataset,
-        device=settings["device"],
-        batch_size=settings["eval_batch_size"],
-        max_new_tokens=settings["max_new_tokens"],
-    )
+    options = {
+        "device": settings["device"],
+        "batch_size": settings["eval_batch_size"],
+        "max_new_tokens": settings["max_new_tokens"],
+    }
+    if settings.get("profile") == "general":
+        limit = settings["dev_limit"] if dataset.stem == "dev" else None
+        result = evaluate_general(model, dataset, per_domain_limit=limit, **options)
+    else:
+        result = evaluate(model, dataset, **options)
     result["batch_size"] = settings["eval_batch_size"]
     result["max_new_tokens"] = settings["max_new_tokens"]
     write_json(report, result)
@@ -179,23 +186,27 @@ def evaluate_stage(
 
 def run(args: argparse.Namespace) -> dict:
     root = Path(args.out).resolve()
-    data = Path(args.data).resolve() if args.data else (
-        root / "fixture_data" if args.smoke else Path("data/reasoning").resolve()
-    )
     if not args.smoke and not torch.cuda.is_available():
         raise RuntimeError("CUDA is unavailable. Install a CUDA build of PyTorch on your GPU machine.")
 
     metadata = root / "run.json"
     if root.exists() and any(root.iterdir()) and not args.resume:
         raise ValueError(f"{root} already contains files. Use --resume with the same settings or choose a new --out.")
+    previous = load_json(metadata) if metadata.is_file() else None
+    default_data = root / "fixture_data" if args.smoke else Path(GENERAL_DATA_DIR)
+    data = Path(args.data or (previous["data"] if previous else default_data)).resolve()
+    manifest_path = data / "manifest.json"
+    if args.smoke and not args.data and not manifest_path.is_file():
+        prepare_general(data, fixture=True, seed=args.seed)
+    if not manifest_path.is_file():
+        raise FileNotFoundError(f"{manifest_path} is missing. Run python -m src.prepare_general_data first.")
+    general = load_manifest(manifest_path).get("profile") == "general"
+    validate_data = validate_general if general else validate
+    manifest = validate_data(data, fixture=args.smoke)
     root.mkdir(parents=True, exist_ok=True)
-    if args.smoke and not args.data and not (data / "manifest.json").is_file():
-        prepare(data, fixture=True, seed=args.seed)
-    manifest = validate(data, fixture=args.smoke)
     paths = {row["name"]: data / row["path"] for row in manifest["datasets"]}
     counts = {row["name"]: row["rows"] for row in manifest["datasets"]}
 
-    previous = load_json(metadata) if metadata.is_file() else None
     saved_model = previous["model"] if previous is not None else None
     model_name = args.model or saved_model or ("local-smoke-model" if args.smoke else DEFAULT_MODEL)
     if args.smoke and model_name == "local-smoke-model":
@@ -218,7 +229,9 @@ def run(args: argparse.Namespace) -> dict:
         "model_revision": revision,
         "seed": args.seed,
         "device": "cpu" if args.smoke else "cuda",
-        "seq_len": 512 if args.smoke else args.seq_len,
+        "seq_len": 512 if args.smoke else (
+            args.seq_len or (previous["seq_len"] if previous else manifest.get("sequence_length", 640))
+        ),
         "grad_accum": 2 if args.smoke else args.grad_accum,
         "sft_batches": 4 if args.smoke else max(1, math.ceil(counts["train"] * args.epochs)),
         "max_new_tokens": 12 if args.smoke else args.max_new_tokens,
@@ -227,6 +240,8 @@ def run(args: argparse.Namespace) -> dict:
         "rollout_prompts": 2 if args.smoke else args.rollout_prompts,
         "samples": 2 if args.smoke else args.samples,
     }
+    if general:
+        settings.update(profile="general", dev_limit=args.dev_limit)
     if previous is not None:
         previous["eval_batch_size"] = settings["eval_batch_size"]
         if previous != settings:
@@ -240,6 +255,21 @@ def run(args: argparse.Namespace) -> dict:
         batches=settings["sft_batches"], learning_rate=2e-5,
     )
     sft_dev = evaluate_stage(sft, paths["dev"], root / "sft_dev.json", settings)
+    if general:
+        summary = {
+            "selected": str(sft),
+            "model": model_name,
+            "base_dev": baseline["domains"],
+            "sft_dev": sft_dev["domains"],
+            "dev_examples": sft_dev["n"],
+        }
+        test_report = root / "selected_test.json"
+        if args.test or test_report.is_file():
+            test = evaluate_stage(sft, paths["test"], test_report, settings)
+            summary.update(test=test["domains"], test_examples=test["n"])
+        write_json(root / "summary.json", summary)
+        return summary
+
     selected = sft
     rollout_counts = None
     rollout_dev = None
@@ -296,19 +326,20 @@ def run(args: argparse.Namespace) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data", help="prepared dataset directory (default: data/reasoning)")
+    parser.add_argument("--data", help=f"prepared dataset directory (default: {GENERAL_DATA_DIR})")
     parser.add_argument("--out", default="runs/reasoning")
     parser.add_argument("--model", help=f"local HF model directory or Hub ID (default: {DEFAULT_MODEL})")
     parser.add_argument("--revision", help="Hub commit, tag, or branch to resolve and pin")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--epochs", type=float, default=1)
-    parser.add_argument("--seq-len", type=int, default=640)
+    parser.add_argument("--seq-len", type=int, help="override the prepared dataset's context budget")
     parser.add_argument("--grad-accum", type=int, default=8)
     parser.add_argument("--max-new-tokens", type=int, default=384)
     parser.add_argument("--eval-batch-size", type=int, default=8)
     parser.add_argument("--rollout-prompts", type=int, default=512)
     parser.add_argument("--samples", type=int, default=4)
-    parser.add_argument("--skip-rollout", action="store_true")
+    parser.add_argument("--dev-limit", type=int, help="limit validation examples per domain for a GPU pilot")
+    parser.add_argument("--skip-rollout", action="store_true", help="skip self-training in the legacy math-only experiment")
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--test", action="store_true", help="evaluate the selected model on the sealed test split")
     parser.add_argument("--smoke", action="store_true", help="use an offline CPU fixture and four training batches")
@@ -316,7 +347,9 @@ def main() -> None:
     if args.smoke and args.revision and not args.model:
         parser.error("--revision requires --model in smoke mode")
     if not math.isfinite(args.epochs) or args.epochs <= 0 or min(
-        args.seq_len, args.grad_accum, args.max_new_tokens,
+        args.seq_len if args.seq_len is not None else 1,
+        args.dev_limit if args.dev_limit is not None else 1,
+        args.grad_accum, args.max_new_tokens,
         args.eval_batch_size, args.rollout_prompts, args.samples,
     ) <= 0:
         parser.error("epoch count, sequence limits, batch settings, and rollout sizes must be positive")
