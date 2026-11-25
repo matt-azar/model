@@ -84,3 +84,34 @@ python -m unittest discover -s tests
 The offline smoke run uses a tiny random model and local fixture data to exercise training, resume, export, and all four evaluation paths.
 
 An existing math-only run can still resume with its recorded data and checkpoint. To start that experiment separately, prepare it with `python -m src.prepare_reasoning_data`, then pass `--data data/reasoning` and a separate `--out` to the trainer. The original custom Transformer and milestone smoke scripts remain in the repo.
+
+## Check C programs with the local GGUF
+
+Keep the built-in llama.cpp chat open as usual. The optional command below uses
+the same running `llama-server` on `127.0.0.1:8080` and the same loaded model.
+It evaluates standalone C11 programs with stdin and stdout. It does not require
+the PyTorch dependencies. On Windows, start Docker Desktop with Linux containers.
+
+Run from the repo root in a separate PowerShell window:
+
+```powershell
+docker pull gcc:14
+python -m src.checked_c data/eval/checked-c.json
+```
+
+The checker asks for a full program, compiles and runs it in a fresh container
+for each test, and requests at most one revision with the first failure. The
+container has no network or host mounts and has CPU, memory, process and time
+limits. It uses an already downloaded image. Use a local Docker engine.
+
+The JSON output shows both attempts, their failures, and elapsed time for
+single-pass generation and for the checked workflow. The included four-task
+suite scores the first and final answers against separate held-out inputs.
+Those inputs and their expected outputs are kept out of model prompts. This is
+a small development comparison. Passing these tests establishes behavior on
+the supplied inputs.
+
+To check your own problem, pass a JSON file containing a `prompt` string with
+the full input/output specification and a `tests` array of
+`{"stdin": "...", "stdout": "..."}` objects. Add a `held_out` array with
+distinct inputs to compare both attempts on cases the model never sees.
