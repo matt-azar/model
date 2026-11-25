@@ -3,11 +3,11 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import torch
 
-from src.chat import resolve_best_ckpt
+from src.chat import main as chat_main, resolve_best_ckpt
 from src.generate import Completion, Generator
 from src.hf_adapter import HFCausalLM
 from src.reject_sample import collect_winners
@@ -15,6 +15,29 @@ from src.tokenizer import CharTokenizer
 
 
 class GenerationTest(TestCase):
+    def test_chat_requests_worked_solution_format_only_on_opt_in(self):
+        question = "What is a prime number?"
+        argv = ["chat", "--ckpt", "unused.pt", "--prompt", question]
+        tokenizer = Mock()
+        tokenizer.chat_template = "configured"
+        tokenizer.apply_chat_template.return_value = "native chat prompt"
+        with patch.object(Generator, "from_checkpoint") as load, patch("builtins.print"):
+            load.return_value.tokenizer = SimpleNamespace(tok=tokenizer)
+            with patch("sys.argv", argv):
+                chat_main()
+            tokenizer.apply_chat_template.assert_called_once_with(
+                [{"role": "user", "content": question}],
+                tokenize=False,
+                add_generation_prompt=True,
+            )
+            self.assertEqual(load.return_value.complete.call_args.args[0], "native chat prompt")
+
+            with patch("sys.argv", [*argv, "--worked-solution"]):
+                chat_main()
+            content = tokenizer.apply_chat_template.call_args.args[0][0]["content"]
+            self.assertIn("Show your work:", content)
+            self.assertIn("Final answer:", content)
+
     def test_chat_uses_selected_model_from_default_run(self):
         with TemporaryDirectory() as folder:
             root = Path(folder)

@@ -308,6 +308,7 @@ def train(config_path: str, resume_override: str | None = None) -> Path:
         model.parameters(),
         lr=lr,
         weight_decay=float(train_cfg.get("weight_decay", 0.0)),
+        foreach=train_cfg.get("optimizer_foreach"),
     )
     use_scaler = dtype == torch.float16
     if hasattr(torch.amp, "GradScaler"):
@@ -368,6 +369,8 @@ def train(config_path: str, resume_override: str | None = None) -> Path:
         )
     else:
         loader = make_dataloader(load_texts(train_path), tokenizer, seq_len, batch_size, seed)
+    if sft_mode and data_cfg.get("require_complete_rows") and loader.dataset.skipped_long:
+        raise ValueError("training rows exceed seq_len; prepare data for the selected tokenizer and sequence length")
     data_iter = _training_batches(loader, step, seed, streaming)
 
     val_loader = None

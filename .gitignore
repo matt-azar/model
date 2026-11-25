@@ -14,6 +14,7 @@ runs/
 data/large/
 data/personal/
 data/reasoning/
+data/general_reasoning/
 data/real/**
 !data/real/README.md
 data/rllite/*.jsonl

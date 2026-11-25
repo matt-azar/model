@@ -8,7 +8,7 @@ from pathlib import Path
 import torch
 from torch.utils.data import DataLoader, Dataset
 
-from src.template import format_reasoning_prompt, format_response
+from src.template import format_chat_prompt, format_reasoning_prompt, format_response
 from src.tokenizer import TokenizerProto
 
 
@@ -20,14 +20,30 @@ def load_sft_rows(path: str | Path) -> list[dict]:
             if not line:
                 continue
             obj = json.loads(line)
-            if "question" not in obj or "answer" not in obj:
-                raise ValueError(f"SFT row missing question/answer at {path}:{line_no}")
-            if "scratchpad" not in obj:
-                raise ValueError(f"SFT row missing scratchpad at {path}:{line_no}")
+            if not isinstance(obj.get("question"), str) or not obj["question"].strip():
+                raise ValueError(f"SFT row missing question at {path}:{line_no}")
+            if "response" in obj:
+                if not isinstance(obj["response"], str) or not obj["response"].strip():
+                    raise ValueError(f"SFT row missing response text at {path}:{line_no}")
+            elif "answer" not in obj or "scratchpad" not in obj:
+                raise ValueError(f"SFT row missing answer/scratchpad at {path}:{line_no}")
             rows.append(obj)
     if not rows:
         raise ValueError(f"no SFT rows in {path}")
     return rows
+
+
+def encode_sft_pair(row: dict, tokenizer: TokenizerProto) -> tuple[list[int], list[int]]:
+    if "response" in row:
+        prompt = format_chat_prompt(row["question"], tokenizer)
+        response = row["response"].strip()
+    else:
+        prompt = format_reasoning_prompt(row["question"], tokenizer)
+        response = format_response(row["scratchpad"], row["answer"])
+    return (
+        tokenizer.encode(prompt, add_bos=True, add_eos=False),
+        tokenizer.encode(response, add_bos=False, add_eos=True),
+    )
 
 
 class SFTPromptMaskedDataset(Dataset):
@@ -44,10 +60,7 @@ class SFTPromptMaskedDataset(Dataset):
         self.examples: list[dict[str, torch.Tensor]] = []
         self.skipped_long = 0
         for row in rows:
-            prompt = format_reasoning_prompt(row["question"], tokenizer)
-            response = format_response(row["scratchpad"], row["answer"])
-            prompt_ids = tokenizer.encode(prompt, add_bos=True, add_eos=False)
-            resp_ids = tokenizer.encode(response, add_bos=False, add_eos=True)
+            prompt_ids, resp_ids = encode_sft_pair(row, tokenizer)
             input_ids = prompt_ids + resp_ids
             # Causal LM labels: predict token t from prefix; mask prompt positions.
             labels = [-100] * len(prompt_ids) + resp_ids

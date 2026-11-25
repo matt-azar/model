@@ -1,51 +1,74 @@
 # Reasoning LLM lab
 
-Train a small model to solve GSM8K math problems and show its work. The main workflow starts from the pretrained **Qwen2.5-0.5B** base model at a pinned Hugging Face revision. It fine-tunes the base on worked solutions and can then train it on its own verified solutions.
+Train a local assistant for math, programming, general reasoning, and ordinary instructions. New runs start from the pretrained **Qwen2.5-1.5B** base checkpoint at a pinned Hugging Face revision and fine-tune it on a mixed set of natural responses.
 
-## Train on a GPU
+## Train on Lambda
 
-Use Python 3.11 or 3.12 and one NVIDIA GPU. Install a CUDA build of PyTorch for your system using the [PyTorch installer](https://pytorch.org/get-started/locally/), then run these commands from the repository root.
+Use one **40 GB A100** or a larger NVIDIA GPU and the default Lambda Stack Ubuntu image. This workflow updates all model weights. Plan for at least 80 GB of free disk space for the model download, optimizer checkpoints, temporary writes, and the export.
 
-```bash
-python -m pip install -r requirements.txt
-python -c "import torch; assert torch.cuda.is_available(); print(torch.cuda.get_device_name())"
-python -m src.prepare_reasoning_data
-python -m src.reasoning_train --out runs/reasoning
-```
-
-The workflow uses full-weight fine-tuning, a microbatch of one, gradient accumulation, and activation checkpointing. It uses BF16 on supported GPUs and mixed FP16 otherwise. Plan for at least 20 GB of free disk space for the default model, temporary checkpoint writes, and exports. GPU memory use depends on the model and sequence lengths. If evaluation or rollout sampling runs out of GPU memory, resume with a smaller `--eval-batch-size`, down to 1. Use `--skip-rollout` to run supervised fine-tuning alone.
-
-To continue an interrupted run, repeat its command with `--resume` and the same training options. The run keeps its recorded starting checkpoint, including runs that started from Qwen2.5-0.5B-Instruct. After choosing your run using validation results, add `--test` to evaluate the selected trained model once on the full official test split.
+Open a terminal on the instance and start a `tmux` session to keep training alive through disconnects. From the repo root, set up Python and verify that PyTorch sees the GPU. These commands use the CUDA 12.4 build of PyTorch 2.6.
 
 ```bash
-python -m src.reasoning_train --out runs/reasoning --resume --test
+nvidia-smi
+curl -LsSf https://astral.sh/uv/install.sh | sh
+~/.local/bin/uv venv --python 3.12
+source .venv/bin/activate
+
+~/.local/bin/uv pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cu124
+~/.local/bin/uv pip install -r requirements.txt
+python -c 'import torch; assert torch.cuda.is_available(); print(torch.cuda.get_device_name())'
+python -u -m src.prepare_general_data
 ```
 
-`runs/reasoning/summary.json` records the selected trained checkpoint and validation accuracy for the original base, supervised fine-tuning, and verified self-training when available. The rollout stage trains only if it collects verified generated solutions, and its checkpoint is selected only if it answers more validation questions correctly than the supervised checkpoint. Compare the trained model with the base to measure whether fine-tuning helped.
-
-To try the trained model in the terminal, pass the `selected` path from that summary. The example below uses the supervised checkpoint.
+Run a short GPU pilot with 200 training examples from the mixed set and eight validation cases per domain.
 
 ```bash
-python -m src.chat --ckpt runs/reasoning/sft/export --prompt "A box holds 12 packs of 6 pencils. If 17 pencils are used, how many remain?"
+python -u -m src.reasoning_train --out runs/general-pilot \
+  --epochs 0.02 --dev-limit 8 --eval-batch-size 4
 ```
 
-## Data and evaluation
+For a full one-epoch run and full validation, start a new output directory. The default output is `runs/reasoning`.
 
-The preparation command pins the official GSM8K dataset, separates the official training examples into supervised training, rollout, and validation sets, and preserves all 1,319 official test examples. Each split is recorded in a manifest with its content hash. The GPU workflow requires that prepared dataset.
+```bash
+python -u -m src.reasoning_train --out runs/reasoning --eval-batch-size 4
+```
 
-Validation reports retain generated completions, answer accuracy, format compliance, generation length, and truncation. Supervised fine-tuning predicts the worked solution and final answer with the prompt masked out of the loss. The optional rollout stage samples multiple responses per question and keeps distinct completions with the required structure and the correct final number. The verifier checks the answer and response structure.
+Repeat the same command with `--resume` to continue an interrupted run. If only generation runs out of memory, resume with a smaller `--eval-batch-size`. The final evaluation is optional and scores the selected model on the separate test split.
 
-Use `python -m src.reasoning_train --help` for settings such as the base model, number of epochs, rollout budget, and generation length.
+```bash
+python -u -m src.reasoning_train --out runs/reasoning --eval-batch-size 4 --resume --test
+```
 
-## CPU smoke test
+## Training data and evaluation
+
+| Area | Training examples | Held-out evaluation |
+|---|---|---|
+| Math | GSM8K worked solutions | GSM8K development questions and the full official test split |
+| Programming | SmolTalk Self-OSS-Instruct Python solutions and generated code-tracing examples | CRUXEval-O return values |
+| General reasoning | QASC evidence-based questions and generated deduction problems with derived explanations | BIG-Bench Hard logical deduction, Boolean expressions, and date understanding |
+| Instruction following | SmolTalk conversations, rewriting, summarization, and constrained responses | Exact checks for list ordering, capitalization, and JSON output |
+
+The prepared training set has 2,500 complete examples per area, shuffled together. Dataset revisions, source attribution, example counts, and content hashes are saved with the data. Training masks prompt tokens and predicts the reference response as written, including its end token. It uses a single microbatch, gradient accumulation, activation checkpointing, and mixed precision.
+
+The reports give separate before-and-after scores, completions, and truncation counts. The programming score measures code tracing. The instruction score covers the listed verifiable constraints. These scores measure a defined set of tasks, and the answer checks can give credit to a correct result with weak reasoning. The final benchmark is an evaluation of this training run, with possible overlap between its public questions and the base model's pretraining corpus.
+
+## Use or back up the export
+
+`runs/reasoning/summary.json` records the selected path. Copy `runs/reasoning/sft/export` and the JSON reports off Lambda before terminating it. Keep the run directory and `sft/ckpt_latest.pt` if you need the optimizer state.
+
+```bash
+python -m src.chat --ckpt runs/reasoning/sft/export --device cpu
+```
+
+Chat sends the question as written. Ask for steps when you want them. `--worked-solution` requests the older GSM8K answer format. The CPU chat CLI uses FP32, so 1.5B needs about 6.2 GB for the weights plus working memory.
+
+## CPU smoke and earlier experiments
 
 ```bash
 python -m src.reasoning_train --smoke --out runs/reasoning-smoke --test
 python -m unittest discover -s tests
 ```
 
-The smoke command creates a tiny random model and local fixture data. It exercises training, export, evaluation, and the rollout gate without downloading a model or dataset. Its scores measure the fixture and are not evidence of model quality.
+The offline smoke run uses a tiny random model and local fixture data to exercise training, resume, export, and all four evaluation paths.
 
-## Earlier experiments
-
-The repo also contains a custom decoder-only Transformer and the original Phase 0–5 and Milestone A–G scripts. Use `scripts/smoke.sh` for the custom model and `scripts/functional_path.sh` for the earlier Hugging Face smoke pipeline.
+An existing math-only run can still resume with its recorded data and checkpoint. To start that experiment separately, prepare it with `python -m src.prepare_reasoning_data`, then pass `--data data/reasoning` and a separate `--out` to the trainer. The original custom Transformer and milestone smoke scripts remain in the repo.

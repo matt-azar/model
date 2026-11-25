@@ -37,7 +37,7 @@ class ReasoningPipelineTests(unittest.TestCase):
                 patch.object(reasoning_train, "train_stage", return_value=root / "export"),
             ):
                 reasoning_train.run(args)
-                self.assertEqual(snapshot.call_args.args[0], "Qwen/Qwen2.5-0.5B")
+                self.assertEqual(snapshot.call_args.args[0], "Qwen/Qwen2.5-1.5B")
                 self.assertEqual(snapshot.call_args.kwargs["revision"], reasoning_train.DEFAULT_REVISION)
 
                 args.out = root / "existing"
@@ -65,7 +65,11 @@ class ReasoningPipelineTests(unittest.TestCase):
             self.assertEqual(training["optimizer_steps"], 2)
             self.assertEqual(result["dev_examples"], 4)
             self.assertNotIn("test_exact_match", result)
-            self.assertEqual(result["verified_generated_solutions"], 0)
+            self.assertEqual(
+                set(result["sft_dev"]), {"math", "programming", "reasoning", "instruction"}
+            )
+            before = json.loads((run / "base_dev.json").read_text())
+            self.assertEqual(len(before["results"]), 4)
             self.assertEqual(Path(result["selected"]), run / "sft" / "export")
             self.assertTrue((run / "sft" / "export" / "tokenizer.json").is_file())
 
@@ -76,3 +80,4 @@ class ReasoningPipelineTests(unittest.TestCase):
             resumed = json.loads((run / "summary.json").read_text())
             self.assertEqual(resumed["selected"], result["selected"])
             self.assertEqual(resumed["test_examples"], 4)
+            self.assertEqual(set(resumed["test"]), set(result["sft_dev"]))
